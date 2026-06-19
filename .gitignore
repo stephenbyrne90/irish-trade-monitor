@@ -19,6 +19,7 @@
 # now comes from the monthly API and annuals are summed from it. Kept ignored
 # so any leftover local copies never get committed.
 /download-*
+/1a_clean.R
 
 # Local data backups and a legacy CN8 file left over from the archive era.
 # CN8 is no longer used (the detail level is 5-digit SITC); this file is not

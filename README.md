@@ -73,7 +73,7 @@ git commit -m "Initial Irish Trade Monitor app"
 Create an empty GitHub repository, then connect and push:
 
 ```bash
-git remote add origin https://github.com/YOUR-USERNAME/irish-trade-monitor.git
+git remote add origin https://github.com/stephenbyrne90/irish-trade-monitor.git
 git push -u origin main
 ```
 
@@ -96,8 +96,6 @@ writes updated parquet files into `app/data/`.
 It resolves the project root from the script location, so it can be launched
 from outside the repo as well as from the project root. It needs internet access.
 The `xml2` package is required only for the optional label fetch.
-
-`1a_clean.R` is a thin legacy wrapper that sources the refresh script.
 
 ## Data Sources
 
