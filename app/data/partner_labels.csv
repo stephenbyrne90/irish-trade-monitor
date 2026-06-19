@@ -1,0 +1,277 @@
+partner,partner_label
+AD,Andorra
+AE,United Arab Emirates
+AF,Afghanistan
+AG,Antigua and Barbuda
+AI,Anguilla
+AL,Albania
+AM,Armenia
+AN,Netherlands Antilles (incl. Aruba 'AW' -> 1986)
+AO,Angola
+AQ,Antarctica
+AR,Argentina
+AS,American Samoa
+AT,Austria
+AU,Australia
+AW,Aruba
+AZ,Azerbaijan
+BA,Bosnia and Herzegovina
+BB,Barbados
+BD,Bangladesh
+BE,Belgium (incl. Luxembourg 'LU' -> 1998)
+BF,Burkina Faso
+BG,Bulgaria
+BH,Bahrain
+BI,Burundi
+BJ,Benin
+BL,Saint Barthélemy
+BM,Bermuda
+BN,Brunei Darussalam
+BO,"Bolivia, Plurinational State of"
+BQ,"Bonaire, Sint Eustatius and Saba"
+BR,Brazil
+BS,Bahamas
+BT,Bhutan
+BV,Bouvet Island
+BW,Botswana
+BY,Belarus (Belorussia)
+BZ,Belize
+CA,Canada
+CC,Cocos Islands (or Keeling Islands)
+CD,"Congo, Democratic Republic of"
+CF,Central African Republic
+CG,Congo
+CH,Switzerland (incl. Liechtenstein 'LI' -> 1994)
+CI,Côte d’Ivoire (Ivory Coast)
+CK,Cook Islands
+CL,Chile
+CM,Cameroon
+CN,China
+CO,Colombia
+CR,Costa Rica
+CS,Serbia and Montenegro(2004-2005);Czechoslovakia(1976-1992)
+CU,Cuba
+CV,Cabo Verde
+CW,Curaçao
+CX,Christmas Island
+CY,Cyprus
+CZ,Czechia
+DD,German Democratic Republic
+DE,Germany (incl. German Democratic Republic 'DD' from 1991)
+DJ,Djibouti
+DK,Denmark
+DM,Dominica
+DO,Dominican Republic
+DZ,Algeria
+EA,"Euro area (AT-01/1999, BE-01/1999, BG-01/2026,CY-01/2008, DE-01/1999, EE-01/2011, ES-01/1999, FI-01/1999, FR-01/1999, GR-01/2001, HR-01/2023, IE-01/1999, IT-01/1999, LT-01/2015, LU-01/1999, LV-01/2014, MT-01/2008, NL-01/1999, PT-01/1999, SI-01/2007, SK-01/2009)"
+EC,Ecuador
+EE,Estonia
+EG,Egypt
+EH,"Western Sahara(2013-2500);Ceuta and Melilla, Spanish Sahara(1976-1976)"
+ER,Eritrea
+ES,Spain (incl. Canary Islands 'XB' from 1997)
+ET,Ethiopia (incl. Eritrea 'ER' -> 1993)
+EU,"European Union (AT-01/1995, BE-01/1958, BG-01/2007, CY-05/2004, CZ-05/2004, DE-01/1958, DK-01/1973, EE-05/2004, ES-01/1986, FI-01/1995, FR-01/1958, GB-01/1973->01/2020, GR-01/1981, HR-07/2013, HU-05/2004, IE-01/1973, IT-01/1958, LT-05/2004, LU-01/1958, LV-05/2004, MT-05/2004, NL-01/1958, PL-05/2004, PT-01/1986, RO-01/2007, SE-01/1995, SI-05/2004, SK-05/2004)"
+FI,Finland
+FJ,Fiji
+FK,Falkland Islands (Malvinas)
+FM,"Micronesia, Federated States of"
+FO,Faroe Islands
+FR,"France (incl. Saint Barthélemy 'BL' -> 2012; incl. French Guiana 'GF', Guadeloupe 'GP', Martinique 'MQ', Réunion 'RE' from 1997; incl. Mayotte 'YT' from 2014)"
+GA,Gabon
+GB,United Kingdom
+GD,Grenada
+GE,Georgia
+GF,French Guiana
+GH,Ghana
+GI,Gibraltar
+GL,Greenland
+GM,Gambia
+GN,Guinea
+GP,Guadeloupe
+GQ,Equatorial Guinea
+GR,Greece
+GS,South Georgia and South Sandwich Islands
+GT,Guatemala
+GU,Guam
+GW,Guinea-Bissau
+GY,Guyana
+HK,Hong Kong
+HM,Heard Island and McDonald Islands
+HN,Honduras
+HR,Croatia
+HT,Haiti
+HU,Hungary
+ID,Indonesia (incl. East Timor 'TP' from 1977 -> 2000)
+IE,Ireland (Eire)
+IL,Israel (incl. West Bank and Gaza Strip 'XP' -> 1994)
+IN,India
+IO,British Indian Ocean Territory
+IQ,Iraq
+IR,"Iran, Islamic Republic of"
+IS,Iceland
+IT,Italy (incl. San Marino 'SM' -> 1993)
+JM,Jamaica
+JO,Jordan
+JP,Japan
+KE,Kenya
+KG,Kyrgyzstan
+KH,Cambodia
+KI,"Kiribati (incl. Solomon Islands 'SB', Tuvalu 'TV' -> 1979; incl. Pitcairn 'PN' -> 1980)"
+KM,Comoros (incl. Mayotte 'YT' -> 1976)
+KN,St Kitts and Nevis
+KP,"Korea, Democratic People’s Republic of (North Korea)"
+KR,"Korea, Republic of (South Korea)"
+KW,Kuwait
+KY,Cayman Islands
+KZ,Kazakhstan
+LA,Lao People’s Democratic Republic (Laos)
+LB,Lebanon
+LC,St Lucia
+LI,Liechtenstein
+LK,Sri Lanka
+LR,Liberia
+LS,Lesotho
+LT,Lithuania
+LU,Luxembourg
+LV,Latvia
+LY,Libya
+MA,Morocco
+MD,"Moldova, Republic of"
+ME,Montenegro
+MG,Madagascar
+MH,Marshall Islands
+MK,North Macedonia
+ML,Mali
+MM,Myanmar (Burma)
+MN,Mongolia
+MO,Macao
+MP,Northern Mariana Islands
+MQ,Martinique
+MR,Mauritania (incl. Spanish Sahara from 1977)
+MS,Montserrat
+MT,Malta
+MU,Mauritius
+MV,Maldives
+MW,Malawi
+MX,Mexico
+MY,Malaysia
+MZ,Mozambique
+NA,Namibia
+NC,New Caledonia
+NE,Niger
+NF,Norfolk Island
+NG,Nigeria
+NI,Nicaragua
+NL,Netherlands
+NO,Norway (incl. Svalbard and Jan Mayen 'SJ' -> 1994 and again from 1997)
+NP,Nepal
+NR,Nauru
+NU,Niue
+NZ,New Zealand
+OM,Oman
+PA,Panama (incl. Panama Canal Zone 'PZ' from 1981)
+PE,Peru
+PF,French Polynesia
+PG,Papua New Guinea
+PH,Philippines
+PK,Pakistan
+PL,Poland
+PM,St Pierre and Miquelon
+PN,Pitcairn
+PS,Occupied Palestinian Territory (West Bank (incl. East Jerusalem) and Gaza Strip)
+PT,Portugal
+PW,Palau
+PY,Paraguay
+PZ,Panama Canal Zone
+QA,Qatar
+QP,High seas
+QQ,Stores and provisions
+QR,Stores and provisions within the framework of intra-Union trade
+QS,Stores and provisions within the framework of extra-Union trade
+QT,"West Indies (incl. Dominica 'DM', St Lucia 'LC', St Vincent and the Grenadines 'VC' -> 1979; incl. Antigua and Barbuda 'AG' -> 1982; incl. St Kitts and Nevis 'KN' -> 1985)"
+QU,Countries and territories not specified
+QV,Countries and territories not specified within the framework of intra-Union trade
+QW,Countries and territories not specified within the framework of extra-Union trade
+QX,Countries and territories not specified for commercial or military reasons
+QY,Countries and territories not specified for commercial or military reasons in the framework of intra-Union trade
+QZ,Countries and territories not specified for commercial or military reasons in the framework of extra-Union trade
+RE,Réunion
+RO,Romania
+RU,Russian Federation (Russia)
+RW,Rwanda
+SA,Saudi Arabia
+SB,Solomon Islands
+SC,Seychelles
+SD,Sudan (incl. South Sudan 'SS' -> 2012)
+SE,Sweden
+SG,Singapore
+SH,"Saint Helena, Ascension and Tristan da Cunha"
+SI,Slovenia
+SJ,Svalbard and Jan Mayen
+SK,Slovakia
+SL,Sierra Leone
+SM,San Marino
+SN,Senegal
+SO,Somalia
+SR,Suriname
+SS,South Sudan
+ST,Sao Tome and Principe
+SU,Soviet Union
+SV,El Salvador
+SX,Sint Maarten (Dutch part)
+SY,Syrian Arab Republic (Syria)
+SZ,Eswatini (Ngwane)
+TC,Turks and Caicos Islands
+TD,Chad
+TF,French Southern Territories
+TG,Togo
+TH,Thailand
+TJ,Tajikistan
+TK,Tokelau
+TL,Timor-Leste
+TM,Turkmenistan
+TN,Tunisia
+TO,Tonga
+TP,East Timor(2001-2002);Portuguese Timor(1976-1976)
+TR,Türkiye
+TT,Trinidad and Tobago
+TV,Tuvalu
+TW,Taiwan
+TZ,"Tanzania, United Republic of"
+UA,Ukraine
+UG,Uganda
+UM,United States Minor Outlying Islands
+US,United States (incl. Navassa Island (part of 'UM') from 1995 -> 2000)
+UY,Uruguay
+UZ,Uzbekistan
+VA,Holy See (Vatican City State)
+VC,St Vincent and the Grenadines
+VD,North Viet Nam
+VE,"Venezuela, Bolivarian Republic of"
+VG,"Virgin Islands, British (incl. Montserrat 'MS' -> 1994)"
+VI,"Virgin Islands, United States"
+VN,Viet Nam (incl. North Viet Nam 'VD' from 1977)
+VU,Vanuatu
+WF,Wallis and Futuna
+WS,Samoa
+XA,"American Oceania (incl. Federated States of Micronesia 'FM', Marshall Islands 'MH' -> 1991; incl. Northern Mariana Islands 'MP' -> 1993; incl. Palau 'PW', Navassa Island (part of 'UM') -> 1994)"
+XB,Canary Islands
+XC,Ceuta (incl. Melilla 'XL' -> 1998)
+XI,United Kingdom (Northern Ireland)
+XK,Kosovo
+XL,Melilla
+XM,Montenegro
+XO,Australian Oceania
+XP,West Bank (incl. East Jerusalem) and Gaza Strip
+XR,Polar regions
+XS,Serbia
+XU,United Kingdom (excluding Northern Ireland)
+XZ,New Zealand Oceania
+YD,South Yemen
+YE,Yemen (incl. South Yemen 'YD' from 1991)
+YT,Mayotte
+YU,"Yugoslavia (incl. Bosnia and Herzegovina 'BA', Croatia 'HR', Slovenia 'SI' -> 1991; incl. North Macedonia 'MK' -> 1992)"
+ZA,South Africa (incl. Namibia 'NA' -> 1989)
+ZM,Zambia
+ZW,Zimbabwe

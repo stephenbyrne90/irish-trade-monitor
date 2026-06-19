@@ -1,0 +1,31 @@
+Package: irishTradeMonitor
+Title: Irish Trade Monitor Shiny App
+Version: 0.2.0
+Authors@R: person("Stephen", "Byrne", email = "byrnes71@tcd.ie", role = c("aut", "cre"))
+Description: A Shiny app for monitoring detailed Irish goods-trade data from
+    Eurostat Comext, including imports and exports, a SITC 1-digit
+    contribution-to-growth decomposition, and 5-digit SITC product and partner
+    drill-downs. All data comes from the monthly Comext API; annual figures are
+    summed from the monthly series. This DESCRIPTION exists to declare package
+    dependencies for reproducible installs; the project is run as scripts plus
+    a Shiny app, not installed as a library.
+License: MIT
+Encoding: UTF-8
+Imports:
+    arrow,
+    bslib,
+    dplyr,
+    DT,
+    forcats,
+    ggplot2,
+    lubridate,
+    plotly,
+    readr,
+    RColorBrewer,
+    scales,
+    shiny,
+    stringr,
+    tibble,
+    tidyr
+Suggests:
+    xml2

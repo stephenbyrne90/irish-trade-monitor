@@ -1,0 +1,30 @@
+# Rendered output / caches
+/.quarto/
+/docs/
+/site/
+/site/.quarto/
+/site/_site/
+/.nojekyll
+
+# OS / editor cruft
+.DS_Store
+**/.DS_Store
+.Rhistory
+**/.Rhistory
+.Rproj.user/
+*.Rproj
+.claude/
+
+# Legacy raw Eurostat Comext archives (~96 MB each). No longer used: all data
+# now comes from the monthly API and annuals are summed from it. Kept ignored
+# so any leftover local copies never get committed.
+/download-*
+
+# Local data backups and a legacy CN8 file left over from the archive era.
+# CN8 is no longer used (the detail level is 5-digit SITC); this file is not
+# read by the app and can be deleted manually when filesystem permissions allow.
+app/data/_pre_worldfix_backup/
+app/data/annual_cn8.parquet
+app/rsconnect/
+/archive/
+/website_data/
