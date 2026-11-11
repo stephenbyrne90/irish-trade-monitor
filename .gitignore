@@ -29,3 +29,8 @@ app/data/annual_cn8.parquet
 app/rsconnect/
 /archive/
 /website_data/
+
+# Local deployment helper (contains shinyapps.io account tokens) and the old
+# folder-copy backups that Git now replaces. Never commit either.
+/git/
+/z99_backups/

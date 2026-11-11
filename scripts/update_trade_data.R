@@ -62,15 +62,33 @@ find_this_file <- function() {
     }
   }
 
+  # Use the file open in RStudio, not a working directory from another project.
+  if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+    editor_path <- tryCatch(
+      rstudioapi::getSourceEditorContext()$path,
+      error = function(e) ""
+    )
+    if (nzchar(editor_path) && basename(editor_path) == "update_trade_data.R") {
+      return(normalizePath(editor_path, winslash = "/", mustWork = TRUE))
+    }
+  }
+
+  cwd_script <- file.path(getwd(), "scripts", "update_trade_data.R")
+  if (file.exists(cwd_script)) {
+    return(normalizePath(cwd_script, winslash = "/", mustWork = TRUE))
+  }
+
   NULL
 }
 
 script_path <- find_this_file()
-project_root <- if (!is.null(script_path)) {
-  dirname(dirname(script_path))
-} else {
-  normalizePath(getwd(), winslash = "/", mustWork = TRUE)
+if (is.null(script_path)) {
+  stop(
+    "Cannot locate scripts/update_trade_data.R. Use RStudio's Source button, or run Rscript scripts/update_trade_data.R from the project folder.",
+    call. = FALSE
+  )
 }
+project_root <- dirname(dirname(script_path))
 monthly_start_period <- "2014-01"
 message("Project root: ", project_root)
 
