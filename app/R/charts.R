@@ -18,7 +18,9 @@ TM_COL <- list(
 )
 
 .TM_EURO <- intToUtf8(0x20AC)
-.TM_FONT <- "Source Sans 3, Source Sans Pro, Helvetica Neue, Arial, sans-serif"
+# Names are quoted: an unquoted family with a digit ("Source Sans 3") is invalid
+# CSS, and the browser then silently falls back to plotly's default font.
+.TM_FONT <- "'Source Sans 3', 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif"
 .TM_DEFAULT_PALETTE <- c("#0f4c5c", "#e09f3e", "#9e2a2b", "#335c67", "#7b6d8d",
                          "#4f772d", "#8d99ae", "#bc6c25", "#2a9d8f", "#6b705c")
 .TM_SOURCE_NOTE <- "Source: Eurostat Comext (DS-059331), reporter Ireland. Nominal EUR."
@@ -679,10 +681,12 @@ tm_page_css <- function() {
 .tm-kpi .tm-kpi-body { padding: 0.8rem 1rem 0.7rem 1rem; }
 .tm-kpi-title { text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.72rem; font-weight: 600; color: #6b7280; }
 .tm-kpi-value { font-size: 2rem; font-weight: 700; line-height: 1.15; color: #1f2933; margin: 0.15rem 0 0.35rem 0; }
-.tm-kpi-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 0.5rem; }
+.tm-kpi .tm-kpi-body { overflow: hidden; }
+.tm-kpi-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 0.35rem 0.5rem; }
 .tm-kpi-lines { font-size: 0.84rem; color: #1f2933; }
 .tm-kpi-line { margin-top: 0.05rem; }
-.tm-kpi-spark { flex: 0 0 auto; line-height: 0; }
+.tm-kpi-spark { flex: 0 1 auto; line-height: 0; margin-left: auto; max-width: 100%; }
+.tm-kpi-spark svg { max-width: 100%; height: auto; }
 .tm-kpi-note { margin-top: 0.4rem; font-size: 0.72rem; color: #6b7280; }
 .tm-delta { font-weight: 600; white-space: nowrap; }
 .tm-delta-up { color: #0f4c5c; }

@@ -10,6 +10,13 @@ library(tidyr)
 library(readr)
 
 source(file.path("R", "trade_utils.R"))
+# Analytical layer and page modules for the Briefing / Trends / Pharma &
+# concentration / Markets pages. Shiny auto-loads R/ when the app is run with
+# runApp(); sourcing explicitly as well keeps `source("app.R")` working.
+for (f in c("analytics.R", "charts.R", "mod_briefing.R", "mod_trends.R",
+            "mod_structure.R", "mod_markets.R")) {
+  source(file.path("R", f))
+}
 
 trade_data <- read_trade_data(".")
 sitc5_labels <- trade_data$sitc5_labels
@@ -57,6 +64,10 @@ sitc_labels_all <- trade_data$sitc_labels
 # Optional pre-computed move decompositions (instant; live fetch is the fallback).
 drivers_country_all <- trade_data$drivers_country
 drivers_product_all <- trade_data$drivers_product
+
+# One pre-built bundle of analytical series (groups, partner groups, smoothed
+# and growth transforms) shared by the analytical pages. Built once at startup.
+tm_data <- tm_build_bundle(trade_data)
 
 # Whether the detailed 5-digit series has been populated (it is fetched by
 # scripts/update_trade_data.R). The drill-down degrades gracefully if not.
@@ -450,7 +461,7 @@ ui <- page_sidebar(
       tags$div(
         class = "d-flex align-items-center gap-2",
         tags$span("Irish Trade Monitor"),
-        tags$span(class = "trade-monitor-version", "v1.0")
+        tags$span(class = "trade-monitor-version", "v2.0")
       )
     ),
     tags$div(class = "trade-monitor-byline", "Economics Division, Department of Finance")
@@ -458,7 +469,7 @@ ui <- page_sidebar(
   theme = app_theme,
   fillable = FALSE,
   sidebar = sidebar(
-    width = 330,
+    width = 270,
     tags$div(class = "small text-uppercase fw-semibold text-muted mb-2", "Across the app"),
     radioButtons(
       "trade_flow",
@@ -467,22 +478,9 @@ ui <- page_sidebar(
       selected = "2",
       inline = TRUE
     ),
-    selectInput(
-      "monitor_year",
-      "Headline year",
-      choices = monitor_years,
-      selected = default_monitor_year
-    ),
-    selectInput(
-      "comparison_years",
-      "Years to compare",
-      choices = rev(annual_years),
-      selected = rev(default_comparison_years),
-      multiple = TRUE
-    ),
     tags$p(
       class = "small text-muted mt-n1 mb-3",
-      "These settings shape the headline cards and the comparison pages. Choose products on the Product by country and Product over time pages."
+      "Switches every flow-specific chart between exports and imports. Charts that show both flows, or the trade balance, say so in their subtitle."
     ),
     tags$hr(),
     tags$p(
@@ -759,22 +757,20 @@ ui <- page_sidebar(
       }
     "))
   ),
-  layout_column_wrap(
-    fill = FALSE,
-    width = 1 / 3,
-    metric_card(
-      "Latest month",
-      format(latest_month_row$date, "%B %Y"),
-      "Most recent month available in the processed dataset"
-    ),
-    uiOutput("latest_total_card"),
-    uiOutput("latest_ytd_growth_card")
-  ),
+  tm_page_css(),
   navset_card_tab(
     id = "main_tabs",
     full_screen = TRUE,
+    # --- Analytical pages (new in v2.0): each is a module in R/mod_*.R --------
+    nav_panel("Briefing", mod_briefing_ui("briefing")),
+    nav_panel("Trends", mod_trends_ui("trends")),
+    nav_panel("Pharma & concentration", mod_structure_ui("structure")),
+    nav_panel("Markets", mod_markets_ui("markets")),
+    # --- Explorer: the original drill-down pages, unchanged ------------------
+    nav_menu(
+    "Explorer",
     nav_panel(
-      "Overview",
+      "Summary tables",
       section_intro(
         tagList(
           tags$p(
@@ -1025,7 +1021,20 @@ ui <- page_sidebar(
     nav_panel(
       "Annual comparison",
       section_intro(
-        "Compare broad product groups across years, then see the leading detailed (5-digit) products for the latest selected year. Choose the years to compare in the left sidebar."
+        "Compare broad product groups across years, then see the leading detailed (5-digit) products for the latest selected year. Choose the years to compare below."
+      ),
+      card(
+        class = "trade-monitor-card border-0 shadow-sm",
+        fill = FALSE,
+        card_body(
+          selectInput(
+            "comparison_years",
+            "Years to compare",
+            choices = rev(annual_years),
+            selected = rev(default_comparison_years),
+            multiple = TRUE
+          )
+        )
       ),
       uiOutput("annual_context_banner"),
       layout_columns(
@@ -1385,7 +1394,8 @@ ui <- page_sidebar(
         ),
         chart_footer("Product share of parent SITC section and of total trade, monthly.")
       )
-    ),
+    )
+    ),  # end nav_menu("Explorer")
     # -----------------------------------------------------------------------
     # Reference tab (last): a README / methodology note (authored in Markdown so it
     # reads like an R Markdown document). States authorship up front, explains
@@ -1409,17 +1419,38 @@ The Irish Trade Monitor is an app for tracking Ireland's goods
 trade with the rest of the world. It is built for economists and non-specialists
 alike: each page answers a specific question - what the latest totals are, what
 changed this month, how trade compares across years, what Ireland trades with a
-given country, where a given product goes. It also contains a page with details about the recent surge in exports of
-polypeptide hormones related to weight loss drugs, which have driven developments in Irish GDP in recent quarters.
+given country, where a given product goes - and, since version 2.0, whether a move is signal or noise, what is
+driving it, and how concentrated and exposed Irish trade is.
 
 ### What you can do here
 
-- **Overview** - the headline picture: latest monthly trade, the broad product mix and the main country markets.
-- **Monthly monitoring** - what changed this month, with country and product \"jump\" tables and a growth-contribution decomposition.
+**Analytical pages** - built to answer the questions an economist asks on release day.
+
+- **Briefing** - the month in one page: headline exports, imports and balance next to smoothed and underlying measures, auto-drafted key points, what is driving growth, and the biggest product and market movers.
+- **Trends** - signal versus noise for any series: level with 3- and 12-month averages, growth on three bases, this year against the previous five, a momentum heatmap, growth contributions and a breadth-of-growth index.
+- **Pharma & concentration** - how concentrated trade is and whether that is changing: composition, product and market concentration, what is inside each product group, one product against everything else, and value versus volume versus unit value.
+- **Markets** - geographic exposure: partner-group shares, front-loading and payback, which markets are driving growth, bilateral balances and a country profile.
+
+**Explorer** - the original drill-down pages, for looking up a specific number.
+
+- **Summary tables** - annual totals by section and partner, and the latest monthly totals.
+- **Monthly monitoring** - country and product \"jump\" tables for a chosen month, with drill-through.
 - **Annual comparison** - compare broad product groups and detailed products across years.
 - **By country** - pick a country and see its product mix, leading products and trade over time.
 - **Product by country** - pick a product and see which countries it goes to or comes from.
 - **Product over time** - track a product's monthly value and its share of Irish trade over time.
+
+### How the analytical measures are defined
+
+- **3-month measures** compare the latest three months with the same three months a year earlier (\"3m y/y\") or with the preceding three months (\"3m on 3m\"). Irish monthly trade is dominated by lumpy pharmaceutical shipments, so single months are a poor guide to the trend.
+- **12-month measures** are rolling 12-month totals; shares and concentration statistics use these.
+- **Underlying exports** exclude chemicals and pharmaceuticals (SITC section 5); **underlying imports** exclude aircraft (SITC 792), which are dominated by the leasing sector.
+- **Analytical product groups** regroup SITC codes into ten economically meaningful categories: pharmaceuticals (54), organic chemicals (51), other chemicals (rest of section 5), computers & electronics (75, 76, 77 except 774), medical devices & instruments (87, 8996, 774), aircraft (792), other machinery & transport (rest of section 7), food, drink & tobacco (sections 0-1), fuels (section 3) and other goods. Trade that Eurostat suppresses at 5-digit level for confidentiality is allocated to the residual group of its section, so the groups sum exactly to total trade.
+- **Partner groups** are the United States, Great Britain & NI, the euro area (current membership, excluding Ireland), other EU, Switzerland, China and the rest of the world.
+- **Growth contributions** are additive percentage-point contributions that sum to the growth rate of the total.
+- **Concentration** is measured with the Herfindahl-Hirschman index (0-10,000) across 5-digit products or partner countries; the effective number of products is 10,000 divided by the index.
+- **Unit values** are value divided by kilograms. They move with product mix and transfer pricing as well as prices and are not a price index.
+- **Event markers** on the charts are a short editable list (`TM_EVENTS` in `R/analytics.R`).
 
 ### Data sources
 
@@ -1481,6 +1512,17 @@ the Central Statistics Office (CSO) and Eurostat.
 )
 
 server <- function(input, output, session) {
+  # Analytical pages. They share the pre-built bundle and follow the global
+  # Exports / Imports switch in the sidebar.
+  tm_flow <- reactive({
+    req(input$trade_flow)
+    input$trade_flow
+  })
+  mod_briefing_server("briefing", tm_data, tm_flow)
+  mod_trends_server("trends", tm_data, tm_flow)
+  mod_structure_server("structure", tm_data, tm_flow)
+  mod_markets_server("markets", tm_data, tm_flow)
+
   observeEvent(input$go_monthly_monitoring, {
     bslib::nav_select("main_tabs", selected = "Monthly monitoring", session = session)
   })

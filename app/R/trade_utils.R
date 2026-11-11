@@ -411,9 +411,15 @@ compute_ytd_contributions <- function(monthly_sitc1) {
 # annual figures are now summed from monthly data, the current (in-progress)
 # year is partial; "full-year" displays should use this instead of max(year).
 latest_complete_year <- function(monthly_total) {
+  # Count distinct months per flow: the table usually holds both imports and
+  # exports, so counting rows per year would treat 6+6 months as a full year.
+  by <- intersect("flow", names(monthly_total))
   monthly_total |>
-    dplyr::count(year, name = "n_months") |>
-    dplyr::filter(n_months >= 12) |>
+    dplyr::distinct(dplyr::across(dplyr::all_of(c(by, "year", "month")))) |>
+    dplyr::count(dplyr::across(dplyr::all_of(c(by, "year"))), name = "n_months") |>
+    dplyr::group_by(year) |>
+    dplyr::summarise(complete = all(n_months >= 12), .groups = "drop") |>
+    dplyr::filter(complete) |>
     dplyr::summarise(y = max(year)) |>
     dplyr::pull(y)
 }

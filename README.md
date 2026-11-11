@@ -1,30 +1,47 @@
 # Irish Trade Monitor
 
-An R Shiny app for monitoring detailed Irish goods-trade data from Eurostat
-Comext. The app is aimed at economists and policy analysts: it supports exports
-and imports, monthly monitoring and annual comparison, a year-on-year cumulative
-growth decomposition by SITC 1-digit section, and drill-downs into detailed
-5-digit SITC products and partner-country combinations.
+An R Shiny app for monitoring Irish goods-trade data from Eurostat Comext, built
+for economists and policy analysts.
 
-Everything is SITC Rev. 4. The classification levels used are 1-digit sections
-(0-9) and 5-digit detailed products, for example `54154`. CN8 customs codes are
-not used by the current app.
+Version 2.0 is organised around the questions asked on release day:
 
-The app is designed to be shared as source code. Clone the repository, install
-the R packages listed below, and run the Shiny app locally.
+- **Briefing** - the month in one page: headline, smoothed and underlying
+  measures, auto-drafted key points, growth drivers, biggest movers.
+- **Trends** - signal versus noise for any series: 3- and 12-month averages,
+  growth on three bases, this year against the previous five, a momentum
+  heatmap, growth contributions and a breadth-of-growth index.
+- **Pharma & concentration** - composition, product and market concentration,
+  what is inside each product group, value versus volume versus unit value.
+- **Markets** - partner-group shares, front-loading and payback, bilateral
+  balances and country profiles.
+- **Explorer** - the original drill-down pages (monthly movers, annual
+  comparison, by country, product by country, product over time).
+
+Everything is SITC Rev. 4. The app uses 1-digit sections, 5-digit detailed
+products, and ten analytical product groups built from them (defined in
+`app/R/analytics.R` and on the app's About page). CN8 customs codes are not used.
 
 ## Project Structure
 
 ```text
 .
 ├── app/
-│   ├── app.R              # Shiny app UI and server
-│   ├── R/trade_utils.R    # data loading, labels, YTD contribution maths
-│   └── data/*.parquet     # processed, app-ready data committed with the repo
+│   ├── app.R                # app shell, navigation and the Explorer pages
+│   ├── R/trade_utils.R      # data loading, labels, Comext API helpers
+│   ├── R/analytics.R        # analytical groups, transforms, contributions,
+│   │                        #   concentration, unit values, event list
+│   ├── R/charts.R           # chart toolkit: one house style for every chart
+│   ├── R/mod_briefing.R     # Briefing page
+│   ├── R/mod_trends.R       # Trends page
+│   ├── R/mod_structure.R    # Pharma & concentration page
+│   ├── R/mod_markets.R      # Markets page
+│   └── data/*.parquet       # processed, app-ready data committed with the repo
 ├── scripts/
-│   └── update_trade_data.R# refresh processed data from the Comext API
-├── DESCRIPTION            # declared R dependencies
-├── run_app.command        # macOS helper to launch the app
+│   ├── update_trade_data.R  # refresh processed data from the Comext API
+│   └── precompute_drivers.R # pre-compute the monthly-mover decompositions
+├── tests/                   # plain Rscript checks, one per layer / page
+├── DESCRIPTION              # declared R dependencies
+├── run_app.command          # macOS helper to launch the app
 └── README.md
 ```
 
@@ -57,30 +74,46 @@ The app reads the committed parquet files for bundled totals, SITC sections,
 partners, and products. Some detailed product-country drill-downs make live
 Eurostat queries at runtime, so those views need an internet connection.
 
-## Share The Code On GitHub
+## Version Control
 
-If this folder is not already a Git repository, initialize it from the project
-root:
+The project is tracked in Git; the old dated folder copies are no longer needed.
 
-```bash
-git init
-git branch -M main
-git add .
-git status
-git commit -m "Initial Irish Trade Monitor app"
-```
+- `main` is the stable version. The tag `baseline-2026-11-11` marks the app
+  exactly as it was before the version 2.0 redesign.
+- The redesign was developed on the branch `analytical-redesign`.
 
-Create an empty GitHub repository, then connect and push:
+Useful commands, run from the project root:
 
 ```bash
-git remote add origin https://github.com/stephenbyrne90/irish-trade-monitor.git
-git push -u origin main
+git status                       # what has changed since the last commit
+git log --oneline                # history
+git switch main                  # go back to the pre-redesign app
+git switch analytical-redesign   # return to the redesigned app
 ```
 
-The `.gitignore` keeps old raw downloads, generated site files, local editor
-files, and other legacy material out of the repository. The app-ready data in
-`app/data/` is small enough to commit and is needed for people to run the app
-without first rebuilding the data.
+To save a data refresh or a change:
+
+```bash
+git add -A
+git commit -m "Refresh data to <month>"
+```
+
+`.gitignore` keeps local deployment helpers (`git/`, which holds account
+tokens), the old folder backups (`z99_backups/`), raw downloads and editor files
+out of the repository. Nothing is published to GitHub until you run `git push`.
+
+## Tests
+
+```bash
+Rscript tests/test_foundation.R
+Rscript tests/test_mod_briefing.R
+Rscript tests/test_mod_trends.R
+Rscript tests/test_mod_structure.R
+Rscript tests/test_mod_markets.R
+```
+
+Each script rebuilds the analytical series from the bundled data and checks
+them against brute-force recalculations, then forces every chart to build.
 
 ## Update The Data
 
