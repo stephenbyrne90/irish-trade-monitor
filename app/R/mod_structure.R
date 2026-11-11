@@ -212,14 +212,14 @@ structure_kpi_cards <- function(td, flow_code, prep = NULL) {
       "Top 3 products", tm_fmt_share(k$top3$share),
       lines = list(tm_delta_span(k$top3$d12, "pp", label = "vs 12 months earlier"),
                    paste0("SITC ", lab(k$top3$codes))),
-      accent = "#9a031e",
+      accent = "#ae1122",
       footnote = paste0("Three largest 5-digit SITC products as a share of ", fl, ", 12 months.")
     ),
     tm_kpi_card(
       "Effective number of products", formatC(k$neff$neff, format = "f", digits = 1),
       lines = list(paste0("HHI ", formatC(k$neff$hhi, format = "f", digits = 0, big.mark = ",")),
                    tm_delta_span(k$neff$neff - k$neff$neff12, "", label = "vs 12 months earlier")),
-      accent = "#52606d",
+      accent = "#4a4f57",
       footnote = "10,000 / HHI across 5-digit products: a flow spread evenly over N products would have the same concentration."
     ),
     tm_kpi_card(
@@ -228,7 +228,7 @@ structure_kpi_cards <- function(td, flow_code, prep = NULL) {
                    paste0(tm_fmt_share(k$largest$share), " of ", fl, " (",
                           tm_fmt_bn(k$largest$value), ")"),
                    tm_delta_span(k$largest$share - k$largest$share12, "pp", label = "vs 12 months earlier")),
-      accent = "#bb3e03",
+      accent = "#a3402b",
       footnote = "12 months to the latest month; share of the flow's true total."
     )
   )
@@ -320,7 +320,7 @@ structure_treemap_data <- function(td, flow_code, prep = NULL, top_n = 8) {
   }
   body <- dplyr::bind_rows(rows)
   root <- tibble::tibble(id = "root", label = fl, parent = "", value = sum(body$value[body$kind == "group"]),
-                         colour = "#eef1f4", kind = "root", group = NA_character_)
+                         colour = "#eef0ee", kind = "root", group = NA_character_)
   dplyr::bind_rows(root, body)
 }
 
@@ -352,7 +352,7 @@ structure_chart_conc <- function(td, flow_code, prep = NULL) {
                     levels = c("Top 1 product", "Top 3 products", "Top 10 products")),
     share = c(d$top1, d$top3, d$top10)
   )
-  pal <- c("Top 1 product" = "#bb3e03", "Top 3 products" = "#9a031e", "Top 10 products" = "#0f4c5c")
+  pal <- c("Top 1 product" = "#ab9965", "Top 3 products" = "#2e7d6f", "Top 10 products" = "#004d44")
   tm_chart_lines(long, y = "share", colour_by = "series", palette = pal, y_suffix = "%",
                  y_title = paste0("Share of ", tolower(structure_flow_name(flow_code)), " (%)"))
 }
@@ -366,7 +366,7 @@ structure_chart_hhi <- function(td, flow_code, prep = NULL) {
     hhi = c(d$hhi_products, d$hhi_partners)
   )
   long <- long[!is.na(long$hhi), ]
-  pal <- c("5-digit products" = "#9a031e", "Partner countries" = "#2f4b9a")
+  pal <- c("5-digit products" = "#004d44", "Partner countries" = "#2c55a2")
   p <- tm_chart_lines(long, y = "hhi", colour_by = "series", palette = pal,
                       y_title = "HHI (0-10,000)")
   top <- max(c(long$hhi, 2600), na.rm = TRUE) * 1.06
@@ -424,7 +424,7 @@ structure_chart_group <- function(td, flow_code, group = "Pharmaceuticals", prep
   if (nrow(d) == 0) return(tm_empty_plot("No data for this group"))
   lv <- levels(d$series)
   oth <- lv[length(lv)]
-  cols <- c(structure_shades(TM_GROUP_COLOURS[[group]], length(lv) - 1), "#c4ccd4")
+  cols <- c(structure_shades(TM_GROUP_COLOURS[[group]], length(lv) - 1), "#c8cbd0")
   names(cols) <- lv
   p <- plotly::plot_ly()
   for (s in lv) {
@@ -484,8 +484,8 @@ structure_chart_product <- function(td, flow_code, code, prep = NULL) {
   if (nrow(d) == 0) return(tm_empty_plot("No data"))
   lv <- levels(d$component)
   g <- unname(structure_get_prep(td, flow_code, prep)$grp[code])
-  pc <- if (is.na(g) || g == "Other goods") "#9a031e" else TM_GROUP_COLOURS[[g]]
-  pal <- stats::setNames(c(pc, "#c4ccd4"), lv)
+  pc <- if (is.na(g) || g == "Other goods") "#ae1122" else TM_GROUP_COLOURS[[g]]
+  pal <- stats::setNames(c(pc, "#c8cbd0"), lv)
   p <- tm_chart_contrib(d, component = "component", palette = pal,
                         total_name = paste0("Total ", tolower(structure_flow_name(flow_code)), " growth (%)"))
   L <- td$latest_date
@@ -524,7 +524,7 @@ structure_uv_data <- function(td, flow_code, group, prep = NULL) {
 structure_chart_uv <- function(td, flow_code, group = "Pharmaceuticals", prep = NULL) {
   d <- structure_uv_data(td, flow_code, group, prep)
   if (nrow(d) == 0) return(tm_empty_plot("No volume data for this group"))
-  pal <- c("Value (EUR)" = "#0f4c5c", "Volume (kg)" = "#7b8794", "Unit value (EUR per kg)" = "#bb3e03")
+  pal <- c("Value (EUR)" = "#004d44", "Volume (kg)" = "#7a7f87", "Unit value (EUR per kg)" = "#9a7b2f")
   p <- tm_chart_lines(d, y = "index", colour_by = "series", palette = pal,
                       y_title = "Index, 2019 = 100")
   ref <- list(type = "line", xref = "paper", x0 = 0, x1 = 1, yref = "y", y0 = 100, y1 = 100,

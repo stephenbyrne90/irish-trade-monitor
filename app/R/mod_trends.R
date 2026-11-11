@@ -350,12 +350,12 @@ trends_css <- function() {
 .tm-trends-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1.5rem; }
 .tm-trends-controls .form-group, .tm-trends-controls .shiny-input-container { margin-bottom: 0; }
 .tm-trends-controls .tm-trends-series { flex: 0 0 auto; min-width: 280px; max-width: 360px; }
-.tm-trends-summary { flex: 1 1 320px; color: #6b7280; font-size: 0.88rem; }
+.tm-trends-summary { flex: 1 1 320px; color: #5c6270; font-size: 0.88rem; }
 .tm-trends-page .tm-inline-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 1.2rem; font-size: 0.82rem; margin: 0.1rem 0 0.2rem 0; }
 .tm-trends-page .tm-inline-controls .form-group, .tm-trends-page .tm-inline-controls .shiny-input-container { margin-bottom: 0; width: auto; }
 .tm-trends-page .tm-inline-controls .control-label { display: none; }
 .tm-trends-page .tm-inline-controls .radio-inline, .tm-trends-page .tm-inline-controls .form-check-inline { margin-right: 0.9rem; }
-.tm-trends-page .tm-trends-ctl-label { color: #6b7280; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.04em; }
+.tm-trends-page .tm-trends-ctl-label { color: #5c6270; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.04em; }
 .tm-trends-page .tm-card { margin-bottom: 0; }
 "))
 }

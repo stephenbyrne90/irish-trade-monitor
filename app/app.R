@@ -113,13 +113,13 @@ product_choice_year <- complete_year
 app_theme <- bs_theme(
   version = 5,
   bootswatch = "flatly",
-  primary = "#0f4c5c",
-  secondary = "#6c757d",
-  success = "#5f0f40",
-  bg = "#f7f3ea",
-  fg = "#1f2933",
-  base_font = font_google("Source Sans 3"),
-  heading_font = font_google("Merriweather Sans"),
+  primary = "#004d44",
+  secondary = "#5c6270",
+  success = "#2c55a2",
+  bg = "#f6f6f2",
+  fg = "#0b0c0c",
+  base_font = font_google("Lato"),
+  heading_font = font_google("Lato"),
   code_font = font_google("IBM Plex Mono")
 )
 
@@ -133,12 +133,12 @@ app_theme <- bs_theme(
 # Core institutional palette. The teal/burgundy pairing matches the bslib
 # theme above; the highlight red is reserved for "latest" / "selected" points.
 trade_colors <- list(
-  primary   = "#0f4c5c",  # teal  - main series, primary bars
-  accent    = "#5f0f40",  # burgundy - secondary series
-  highlight = "#9a031e",  # red   - latest / selected marker
-  ink       = "#1f2933",  # body text
-  grid      = "#e2e8ee",  # axis gridlines
-  muted     = "#6b7280"   # axis titles, captions
+  primary   = "#004d44",  # teal  - main series, primary bars
+  accent    = "#2c55a2",  # burgundy - secondary series
+  highlight = "#ae1122",  # red   - latest / selected marker
+  ink       = "#0b0c0c",  # body text
+  grid      = "#e5e7eb",  # axis gridlines
+  muted     = "#5c6270"   # axis titles, captions
 )
 
 # Ten coherent, reasonably distinct colours for the SITC 1-digit sections.
@@ -147,8 +147,8 @@ trade_colors <- list(
 # contribution chart and, via the discrete-scale defaults below, for every
 # multi-series ggplot, so a given SITC section keeps the same colour app-wide.
 sitc1_section_palette <- c(
-  "#0f4c5c", "#2c7da0", "#5a9fb5", "#84a98c", "#b08968",
-  "#9a031e", "#bb3e03", "#ca6702", "#9d7e8c", "#5f0f40"
+  "#ab9965", "#6b5b2e", "#8c5a2b", "#a3402b", "#d9cca3",
+  "#004d44", "#8fc1b5", "#2c55a2", "#8ba6d6", "#c8cbd0"
 )
 
 # Shared ggplot theme: clean, minimal chrome, white panels (the default grey
@@ -507,14 +507,14 @@ ui <- page_sidebar(
     tags$style(HTML("
       .trade-monitor-intro {
         max-width: 72rem;
-        color: #52606d;
+        color: #4a4f57;
         font-size: 0.98rem;
         line-height: 1.55;
       }
       .trade-monitor-brand {
         line-height: 1.05;
         background: #ffffff;
-        border: 1px solid #d9e2ec;
+        border: 1px solid #dde3e0;
         border-radius: 0.9rem;
         padding: 0.85rem 0.95rem 0.8rem;
         box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
@@ -526,14 +526,14 @@ ui <- page_sidebar(
         justify-content: space-between;
         gap: 0.75rem;
         font-weight: 700;
-        color: #1f2933;
+        color: #0b0c0c;
       }
       .trade-monitor-version {
         display: inline-flex;
         align-items: center;
         padding: 0.16rem 0.5rem;
         border-radius: 999px;
-        background: #0f4c5c;
+        background: #004d44;
         color: #ffffff;
         font-size: 0.72rem;
         font-weight: 700;
@@ -554,7 +554,7 @@ ui <- page_sidebar(
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: #334e68;
+        color: #374151;
       }
       .trade-monitor-card .card-body {
         padding: 1.1rem 1.2rem;
@@ -563,7 +563,7 @@ ui <- page_sidebar(
         margin-bottom: 0.75rem;
       }
       .trade-monitor-table .dataTables_info {
-        color: #52606d;
+        color: #4a4f57;
         font-size: 0.9rem;
       }
       .trade-monitor-table table.dataTable tbody tr.selected > * {
@@ -596,10 +596,10 @@ ui <- page_sidebar(
       .trade-monitor-drilldown-head {
         margin: 1.4rem 0 0.6rem;
         padding-bottom: 0.4rem;
-        border-bottom: 2px solid #e2e8ee;
+        border-bottom: 2px solid #e5e7eb;
         font-size: 1.05rem;
         font-weight: 700;
-        color: #0f3a46;
+        color: #003a33;
       }
 
       /* ---- Cards ---------------------------------------------------------- */
@@ -611,15 +611,15 @@ ui <- page_sidebar(
       }
       .trade-monitor-card > .card-header {
         background: #ffffff;
-        border-bottom: 1px solid #e2e8ee;
+        border-bottom: 1px solid #e5e7eb;
         font-weight: 600;
-        color: #1f2933;
+        color: #0b0c0c;
         letter-spacing: 0.01em;
         padding: 0.7rem 1.2rem;
       }
       .card-footer.small {
-        background: #fbfaf6;
-        border-top: 1px solid #eef1f5;
+        background: #fafaf7;
+        border-top: 1px solid #eef0ee;
         line-height: 1.45;
       }
 
@@ -628,7 +628,7 @@ ui <- page_sidebar(
          cards into clean KPI tiles. */
       .trade-monitor-metric-grid .card,
       .layout-column-wrap .card {
-        border-top: 3px solid #0f4c5c;
+        border-top: 3px solid #004d44;
       }
       .layout-column-wrap .card .card-header,
       .trade-monitor-metric-grid .card .card-header {
@@ -638,41 +638,41 @@ ui <- page_sidebar(
         letter-spacing: 0.06em;
         font-size: 0.74rem;
         font-weight: 700;
-        color: #6b7280;
+        color: #5c6270;
         padding-bottom: 0;
       }
       .layout-column-wrap .card .display-6 {
         font-size: 1.85rem;
-        color: #0f3a46;
+        color: #003a33;
       }
 
       /* ---- Navigation tabs ----------------------------------------------- */
       .nav-tabs .nav-link {
-        color: #52606d;
+        color: #4a4f57;
         font-weight: 600;
         border: none;
         border-bottom: 2px solid transparent;
       }
       .nav-tabs .nav-link:hover {
-        color: #0f4c5c;
-        border-bottom-color: #cdd9e0;
+        color: #004d44;
+        border-bottom-color: #d8dadf;
       }
       .nav-tabs .nav-link.active {
-        color: #0f4c5c;
+        color: #004d44;
         background: transparent;
-        border-bottom: 2px solid #0f4c5c;
+        border-bottom: 2px solid #004d44;
       }
 
       /* ---- DataTables ----------------------------------------------------- */
       /* Quiet header band, right-aligned numerics and roomy rows make the
          tables read like report tables rather than raw data dumps. */
       table.trade-dt.dataTable thead th {
-        background: #f3f1ea;
-        color: #334e68;
+        background: #efefe9;
+        color: #374151;
         font-size: 0.72rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        border-bottom: 2px solid #d9e2ec !important;
+        border-bottom: 2px solid #dde3e0 !important;
       }
       table.trade-dt.dataTable tbody td {
         vertical-align: middle;
@@ -686,13 +686,13 @@ ui <- page_sidebar(
         color: inherit;
       }
       .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-        background: #0f4c5c !important;
-        border-color: #0f4c5c !important;
+        background: #004d44 !important;
+        border-color: #004d44 !important;
         color: #ffffff !important;
         border-radius: 0.4rem;
       }
       .dataTables_wrapper .dataTables_filter input {
-        border: 1px solid #cdd9e0;
+        border: 1px solid #d8dadf;
         border-radius: 0.4rem;
         padding: 0.2rem 0.5rem;
       }
@@ -700,18 +700,18 @@ ui <- page_sidebar(
       /* ---- About / methodology (README) page ----------------------------- */
       .trade-monitor-readme {
         max-width: 56rem;
-        color: #3e4c59;
+        color: #374151;
         line-height: 1.6;
       }
       .trade-monitor-readme h2 {
         font-weight: 700;
-        color: #0f3a46;
+        color: #003a33;
         margin-bottom: 0.5rem;
       }
       .trade-monitor-readme h3 {
         font-size: 1.05rem;
         font-weight: 700;
-        color: #1f2933;
+        color: #0b0c0c;
         margin-top: 1.6rem;
         margin-bottom: 0.5rem;
       }
@@ -733,16 +733,16 @@ ui <- page_sidebar(
 
       /* ---- App footer ----------------------------------------------------- */
       .trade-monitor-credit {
-        color: #52606d;
-        border-top: 1px solid #e2e8ee;
+        color: #4a4f57;
+        border-top: 1px solid #e5e7eb;
         padding-top: 0.55rem;
         margin-top: 0.4rem;
       }
       .trade-monitor-footer {
         margin-top: 1.25rem;
         padding-top: 0.9rem;
-        border-top: 1px solid #e2e8ee;
-        color: #6b7280;
+        border-top: 1px solid #e5e7eb;
+        color: #5c6270;
         font-size: 0.82rem;
         line-height: 1.5;
       }
@@ -2705,7 +2705,7 @@ server <- function(input, output, session) {
         x = ~date,
         y = ~total_ytd_growth_pct,
         name = "Total YTD growth",
-        line = list(color = "#111827", width = 2),
+        line = list(color = "#0b0c0c", width = 2),
         inherit = FALSE,
         hovertemplate = paste(
           "<b>Total YTD growth</b><br>",
@@ -2719,7 +2719,7 @@ server <- function(input, output, session) {
         x = ~date,
         y = ~total_ytd_growth_pct,
         name = "Total YTD growth",
-        marker = list(color = "#111827", size = 5),
+        marker = list(color = "#0b0c0c", size = 5),
         inherit = FALSE,
         showlegend = FALSE,
         hoverinfo = "skip"
@@ -2864,10 +2864,10 @@ server <- function(input, output, session) {
 
     p <- history |>
       ggplot(aes(x = date, y = value_eur)) +
-      geom_line(color = "#0f4c5c", linewidth = 1) +
+      geom_line(color = "#004d44", linewidth = 1) +
       geom_point(
         data = highlight_row,
-        color = "#9a031e",
+        color = "#ae1122",
         size = 2.8
       ) +
       scale_y_continuous(labels = label_eur_billions) +
@@ -2886,7 +2886,7 @@ server <- function(input, output, session) {
 
     p <- plot_data |>
       ggplot(aes(x = value_eur, y = forcats::fct_reorder(sitc1_label, value_eur))) +
-      geom_col(fill = "#5f0f40") +
+      geom_col(fill = "#2c55a2") +
       scale_x_continuous(labels = label_eur_billions) +
       labs(x = NULL, y = NULL)
 
@@ -2940,7 +2940,7 @@ server <- function(input, output, session) {
       DT::formatStyle(
         c("Change", "Change %"),
         valueColumns = ".sign",
-        color = DT::styleInterval(0, c("#b3261e", "#157f3b")),
+        color = DT::styleInterval(0, c("#ae1122", "#2e7d6f")),
         fontWeight = "600"
       )
   }
@@ -3569,10 +3569,10 @@ server <- function(input, output, session) {
 
     p <- history |>
       ggplot(aes(x = date, y = value_eur)) +
-      geom_line(color = "#5f0f40", linewidth = 1) +
+      geom_line(color = "#2c55a2", linewidth = 1) +
       geom_point(
         data = highlight_data,
-        color = "#9a031e",
+        color = "#ae1122",
         size = 2.6
       ) +
       scale_y_continuous(labels = label_trade_value) +
@@ -3597,13 +3597,13 @@ server <- function(input, output, session) {
       add_lines(
         y = ~share_of_partner,
         name = "Share of partner total",
-        line = list(color = "#0f4c5c", width = 2),
+        line = list(color = "#004d44", width = 2),
         hovertemplate = "%{x|%b %Y}<br>Share of partner total: %{y:.1%}<extra></extra>"
       ) |>
       add_lines(
         y = ~share_of_product,
         name = "Share of product total",
-        line = list(color = "#9a031e", width = 2),
+        line = list(color = "#ae1122", width = 2),
         hovertemplate = "%{x|%b %Y}<br>Share of product total: %{y:.1%}<extra></extra>"
       ) |>
       layout(
@@ -3827,10 +3827,10 @@ server <- function(input, output, session) {
 
     p <- history |>
       ggplot(aes(x = date, y = value_eur)) +
-      geom_line(color = "#5f0f40", linewidth = 1) +
+      geom_line(color = "#2c55a2", linewidth = 1) +
       geom_point(
         data = highlight_data,
-        color = "#9a031e",
+        color = "#ae1122",
         size = 2.6
       ) +
       scale_y_continuous(labels = label_trade_value) +
@@ -3857,13 +3857,13 @@ server <- function(input, output, session) {
       add_lines(
         y = ~share_of_product,
         name = "Share of product total",
-        line = list(color = "#0f4c5c", width = 2),
+        line = list(color = "#004d44", width = 2),
         hovertemplate = "%{x|%b %Y}<br>Share of product total: %{y:.1%}<extra></extra>"
       ) |>
       add_lines(
         y = ~share_of_destination,
         name = "Share of partner total",
-        line = list(color = "#9a031e", width = 2),
+        line = list(color = "#ae1122", width = 2),
         hovertemplate = "%{x|%b %Y}<br>Share of partner total: %{y:.1%}<extra></extra>"
       ) |>
       layout(

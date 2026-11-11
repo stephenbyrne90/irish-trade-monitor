@@ -35,7 +35,7 @@ ok(td$latest_label == tm_fmt_month_long(td$latest_date), "latest_label matches l
 
 cat("Constants\n")
 ok(nrow(TM_GROUPS) == 10 && identical(TM_GROUP_LEVELS, TM_GROUPS$group), "ten groups in order")
-ok(identical(TM_GROUPS$colour[1], "#0f4c5c"), "Pharmaceuticals colour")
+ok(identical(TM_GROUPS$colour[1], "#004d44"), "Pharmaceuticals colour (Department of Finance green)")
 ok(length(TM_GROUP_COLOURS) == 10 && !anyDuplicated(TM_GROUP_COLOURS), "distinct group colours")
 ok(nrow(TM_EVENTS) == 5, "five events")
 

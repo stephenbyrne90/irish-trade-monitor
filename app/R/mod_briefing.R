@@ -14,7 +14,7 @@
 # ---------------------------------------------------------------------------
 
 BRIEFING_COL <- list(
-  total = "#1f2933", ex_pharma = "#3a9bab", ex_chem = "#e09f3e", ex_aircraft = "#bb3e03",
+  total = "#0b0c0c", ex_pharma = "#2e7d6f", ex_chem = "#9a7b2f", ex_aircraft = "#2c55a2",
   bars = "rgba(154,165,177,0.45)"
 )
 
@@ -181,7 +181,7 @@ briefing_kpi_row <- function(td, met = NULL) {
       tm_delta_span(und$yoy, "%", 1, "y/y"),
       tm_delta_span(und$yoy3, "%", 1, "3m y/y")
     ),
-    spark = tm_sparkline(und$spark, "#3a9bab"), accent = "#3a9bab",
+    spark = tm_sparkline(und$spark, "#2e7d6f"), accent = "#2e7d6f",
     footnote = "Excluding chemicals & pharma"
   )
   us <- m$us
@@ -518,7 +518,7 @@ briefing_keypoints_card <- function(points, ns = function(x) x) {
 
 briefing_css <- function() {
   htmltools::tags$style(htmltools::HTML("
-.tm-briefing .tm-dateline { color: #6b7280; font-size: 0.82rem; margin: 0.2rem 0 0.7rem 0; }
+.tm-briefing .tm-dateline { color: #5c6270; font-size: 0.82rem; margin: 0.2rem 0 0.7rem 0; }
 .tm-briefing .tm-briefing-kpis { grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr)) !important; margin-bottom: 1rem; }
 .tm-briefing .tm-keypoints { box-shadow: none; padding: 0.2rem 0 0.2rem 1.4rem; margin: 0; border-left: 0; font-size: 0.95rem; }
 .tm-briefing .tm-keypoints li { margin-bottom: 0.35rem; }

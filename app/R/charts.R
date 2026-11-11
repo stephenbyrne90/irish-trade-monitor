@@ -12,17 +12,17 @@
 # ---------------------------------------------------------------------------
 
 TM_COL <- list(
-  exports = "#0f4c5c", imports = "#bb3e03", balance = "#52606d",
-  ink = "#1f2933", muted = "#6b7280", grid = "#e2e8ee", highlight = "#9a031e",
-  positive = "#0f4c5c", negative = "#bb3e03", band = "#d9e2ec"
+  exports = "#004d44", imports = "#9a7b2f", balance = "#4a4f57",
+  ink = "#0b0c0c", muted = "#5c6270", grid = "#e5e7eb", highlight = "#ae1122",
+  positive = "#004d44", negative = "#a3402b", band = "#dde3e0"
 )
 
 .TM_EURO <- intToUtf8(0x20AC)
-# Names are quoted: an unquoted family with a digit ("Source Sans 3") is invalid
+# Names are quoted: an unquoted family name containing a digit is invalid
 # CSS, and the browser then silently falls back to plotly's default font.
-.TM_FONT <- "'Source Sans 3', 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif"
-.TM_DEFAULT_PALETTE <- c("#0f4c5c", "#e09f3e", "#9e2a2b", "#335c67", "#7b6d8d",
-                         "#4f772d", "#8d99ae", "#bc6c25", "#2a9d8f", "#6b705c")
+.TM_FONT <- "'Lato', 'Helvetica Neue', Arial, sans-serif"
+.TM_DEFAULT_PALETTE <- c("#004d44", "#ab9965", "#2c55a2", "#a3402b", "#5e4a8c",
+                         "#2e7d6f", "#8c5a2b", "#8ba6d6", "#6c7a99", "#c8cbd0")
 .TM_SOURCE_NOTE <- "Source: Eurostat Comext (DS-059331), reporter Ireland. Nominal EUR."
 
 .tm_is_date <- function(x) inherits(x, c("Date", "POSIXct"))
@@ -92,7 +92,7 @@ TM_COL <- list(
 # ---------------------------------------------------------------------------
 
 #' Apply the house style to a plotly chart.
-#' White background, Source Sans font, light horizontal gridlines only, a zero
+#' White background, Lato font (as on gov.ie), light horizontal gridlines only, a zero
 #' line when requested, compact margins, bottom legend and a modebar reduced to
 #' a "download PNG" button.
 #' @param p plotly object.
@@ -109,7 +109,7 @@ tm_layout <- function(p, y_title = NULL, y_suffix = "", y_prefix = "", y_tickfor
   legend <- match.arg(legend)
   xaxis <- list(
     title = list(text = ""), showgrid = FALSE, zeroline = FALSE, showline = FALSE,
-    ticks = "outside", tickcolor = "#cbd2d9", ticklen = 3, automargin = TRUE,
+    ticks = "outside", tickcolor = "#d8dadf", ticklen = 3, automargin = TRUE,
     tickfont = list(size = 11, color = TM_COL$muted)
   )
   if (!is.null(x_range)) xaxis$range <- as.list(as.character(x_range))
@@ -123,14 +123,14 @@ tm_layout <- function(p, y_title = NULL, y_suffix = "", y_prefix = "", y_tickfor
       ),
       x = 0, y = 1.02, xanchor = "left", yanchor = "bottom",
       font = list(size = 11, color = TM_COL$muted),
-      bgcolor = "#f1f4f7", activecolor = TM_COL$band, borderwidth = 0
+      bgcolor = "#f1f2f0", activecolor = TM_COL$band, borderwidth = 0
     )
   }
   yaxis <- list(
     title = list(text = if (is.null(y_title)) "" else y_title,
                  font = list(size = 11, color = TM_COL$muted)),
     showgrid = TRUE, gridcolor = TM_COL$grid, gridwidth = 1,
-    zeroline = isTRUE(zero_line), zerolinecolor = "#52606d", zerolinewidth = 1.4,
+    zeroline = isTRUE(zero_line), zerolinecolor = "#4a4f57", zerolinewidth = 1.4,
     showline = FALSE, ticks = "", automargin = TRUE,
     ticksuffix = y_suffix, tickprefix = y_prefix,
     tickfont = list(size = 11, color = TM_COL$muted)
@@ -184,7 +184,7 @@ tm_add_events <- function(p, events = TM_EVENTS, x_min = NULL, x_max = NULL) {
   shapes <- lapply(seq_len(nrow(ev)), function(i) {
     list(type = "line", xref = "x", yref = "paper",
          x0 = as.character(ev$date[i]), x1 = as.character(ev$date[i]), y0 = 0, y1 = 1,
-         line = list(color = "#9aa5b1", width = 1, dash = "dot"), layer = "below")
+         line = list(color = "#9ea3aa", width = 1, dash = "dot"), layer = "below")
   })
   annots <- lapply(seq_len(nrow(ev)), function(i) {
     list(x = as.character(ev$date[i]), y = 1, xref = "x", yref = "paper",
@@ -266,7 +266,7 @@ tm_chart_lines <- function(df, x = "date", y, colour_by, palette = NULL, scale =
       d <- d[order(d[[x]]), , drop = FALSE]
       nm <- if (is.null(dash_by)) s else paste(s, dlv[k], sep = paste0(" ", intToUtf8(0xB7), " "))
       is_hi <- is.null(highlight) || s %in% highlight
-      col <- if (is_hi) cols[[s]] else "#c4ccd4"
+      col <- if (is_hi) cols[[s]] else "#c8cbd0"
       w <- if (is.null(highlight)) width else if (is_hi) width * 1.5 else 1.1
       p <- plotly::add_trace(
         p, type = "scatter", mode = "lines", x = d[[x]], y = d[[y]] / scale,
@@ -301,8 +301,8 @@ tm_chart_contrib <- function(df, component, contrib = "contrib_pp", total = "tot
   tot <- df[!duplicated(df$date), c("date", total)]
   tot <- tot[order(tot$date), ]
   p <- plotly::add_trace(p, type = "scatter", mode = "lines+markers", x = tot$date, y = tot[[total]],
-                         name = total_name, line = list(color = "#111111", width = 2),
-                         marker = list(color = "#111111", size = 5),
+                         name = total_name, line = list(color = "#0b0c0c", width = 2),
+                         marker = list(color = "#0b0c0c", size = 5),
                          hovertemplate = paste0("%{y:+.1f}%<extra>", total_name, "</extra>"))
   p |>
     tm_layout(y_title = y_title, zero_line = TRUE, range_buttons = TRUE) |>
@@ -390,14 +390,14 @@ tm_chart_seasonal <- function(df, value = "value_eur", highlight_year = NULL, n_
                         line = list(color = "rgba(0,0,0,0)", width = 0),
                         name = paste0("Range ", rng_lab), hoverinfo = "skip") |>
       plotly::add_trace(type = "scatter", mode = "lines", x = m_lab, y = as.numeric(av),
-                        line = list(color = "#7b8794", width = 1.6, dash = "dash"),
+                        line = list(color = "#7a7f87", width = 1.6, dash = "dash"),
                         name = paste0("Average ", rng_lab),
                         hovertemplate = paste0(hov, "<extra>Average ", rng_lab, "</extra>"))
   }
   py <- d[d$year == highlight_year - 1, ]
   if (nrow(py) > 0) {
     p <- plotly::add_trace(p, type = "scatter", mode = "lines", x = month.abb[py$month], y = py$v,
-                           line = list(color = "#3e4c59", width = 1.6), name = as.character(highlight_year - 1),
+                           line = list(color = "#374151", width = 1.6), name = as.character(highlight_year - 1),
                            hovertemplate = paste0(hov, "<extra>", highlight_year - 1, "</extra>"))
   }
   hy <- d[d$year == highlight_year, ]
@@ -477,7 +477,7 @@ tm_chart_hbar <- function(df, label, value, scale = 1e9, value_suffix = "", valu
   plotly::layout(
     p, bargap = 0.28,
     xaxis = list(range = rng, showgrid = FALSE, showticklabels = FALSE, ticks = "",
-                 zeroline = lo < 0, zerolinecolor = "#52606d", zerolinewidth = 1.2, fixedrange = TRUE),
+                 zeroline = lo < 0, zerolinecolor = "#4a4f57", zerolinewidth = 1.2, fixedrange = TRUE),
     yaxis = list(autorange = "reversed", categoryorder = "array", categoryarray = d$label,
                  type = "category", showgrid = FALSE, ticks = "", automargin = TRUE,
                  tickfont = list(size = 11, color = TM_COL$ink), fixedrange = TRUE),
@@ -543,7 +543,7 @@ tm_chart_scatter_bubble <- function(df, x, y, size, label, colour = TM_COL$expor
                               font = list(size = 11, color = TM_COL$muted)),
                  ticksuffix = x_suffix),
     shapes = list(list(type = "line", xref = "paper", x0 = 0, x1 = 1, yref = "y", y0 = 0, y1 = 0,
-                       line = list(color = "#52606d", width = 1.2), layer = "below"))
+                       line = list(color = "#4a4f57", width = 1.2), layer = "below"))
   )
 }
 
@@ -674,26 +674,26 @@ tm_page_css <- function() {
   htmltools::tags$style(htmltools::HTML("
 .tm-card, .tm-kpi { background: #fff; border-radius: 0.6rem; box-shadow: 0 1px 3px rgba(31,41,51,0.08) !important; }
 .tm-card .tm-card-header { background: transparent; border-bottom: 0; padding: 0.85rem 1rem 0.2rem 1rem; }
-.tm-card-title { font-weight: 700; font-size: 1.02rem; color: #1f2933; line-height: 1.25; }
-.tm-subtitle { color: #6b7280; font-size: 0.84rem; margin-top: 0.15rem; }
+.tm-card-title { font-weight: 700; font-size: 1.02rem; color: #0b0c0c; line-height: 1.25; }
+.tm-subtitle { color: #5c6270; font-size: 0.84rem; margin-top: 0.15rem; }
 .tm-card .tm-card-body { padding: 0.25rem 0.6rem 0.4rem 0.6rem; }
-.tm-card .tm-footer { background: transparent; border-top: 0; color: #6b7280; font-size: 0.74rem; padding: 0.2rem 1rem 0.65rem 1rem; }
+.tm-card .tm-footer { background: transparent; border-top: 0; color: #5c6270; font-size: 0.74rem; padding: 0.2rem 1rem 0.65rem 1rem; }
 .tm-kpi .tm-kpi-body { padding: 0.8rem 1rem 0.7rem 1rem; }
-.tm-kpi-title { text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.72rem; font-weight: 600; color: #6b7280; }
-.tm-kpi-value { font-size: 2rem; font-weight: 700; line-height: 1.15; color: #1f2933; margin: 0.15rem 0 0.35rem 0; }
+.tm-kpi-title { text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.72rem; font-weight: 600; color: #5c6270; }
+.tm-kpi-value { font-size: 2rem; font-weight: 700; line-height: 1.15; color: #0b0c0c; margin: 0.15rem 0 0.35rem 0; }
 .tm-kpi .tm-kpi-body { overflow: hidden; }
 .tm-kpi-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 0.35rem 0.5rem; }
-.tm-kpi-lines { font-size: 0.84rem; color: #1f2933; }
+.tm-kpi-lines { font-size: 0.84rem; color: #0b0c0c; }
 .tm-kpi-line { margin-top: 0.05rem; }
 .tm-kpi-spark { flex: 0 1 auto; line-height: 0; margin-left: auto; max-width: 100%; }
 .tm-kpi-spark svg { max-width: 100%; height: auto; }
-.tm-kpi-note { margin-top: 0.4rem; font-size: 0.72rem; color: #6b7280; }
+.tm-kpi-note { margin-top: 0.4rem; font-size: 0.72rem; color: #5c6270; }
 .tm-delta { font-weight: 600; white-space: nowrap; }
-.tm-delta-up { color: #0f4c5c; }
-.tm-delta-down { color: #bb3e03; }
-.tm-delta-na { color: #6b7280; }
-.tm-delta-label { font-weight: 400; color: #6b7280; }
-.tm-keypoints { background: #fff; border-left: 4px solid #0f4c5c; border-radius: 0.4rem; padding: 0.7rem 1rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(31,41,51,0.08); }
+.tm-delta-up { color: #004d44; }
+.tm-delta-down { color: #a3402b; }
+.tm-delta-na { color: #5c6270; }
+.tm-delta-label { font-weight: 400; color: #5c6270; }
+.tm-keypoints { background: #fff; border-left: 4px solid #004d44; border-radius: 0.4rem; padding: 0.7rem 1rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(31,41,51,0.08); }
 .tm-keypoints ul { margin: 0.2rem 0 0 0; padding-left: 1.1rem; }
 .tm-keypoints li { margin-bottom: 0.2rem; }
 "))

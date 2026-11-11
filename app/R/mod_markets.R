@@ -233,7 +233,7 @@ markets_frontload <- function(td, flow, group = "United States", from = "2022-01
   d <- d[!is.na(d$index), ]
   if (nrow(d) == 0) return(tm_empty_plot("No data for this selection"))
   pal <- stats::setNames(
-    c(TM_PARTNER_GROUP_COLOURS[[group]], "#6b7280"), c(group, "All other markets"))
+    c(TM_PARTNER_GROUP_COLOURS[[group]], "#5c6270"), c(group, "All other markets"))
   tm_chart_lines(d, y = "index", colour_by = "series", palette = pal,
                  y_title = "Index, 2024 average = 100") |>
     tm_add_events() |>
@@ -382,7 +382,7 @@ markets_profile_sitc_data <- function(td, flow, partner, min_share = 0.02) {
 markets_profile_sitc <- function(td, flow, partner, years = 5) {
   d <- markets_profile_sitc_data(td, flow, partner)
   if (nrow(d) == 0) return(tm_empty_plot("No product detail for this country"))
-  cols <- c(TM_SITC1_COLOURS, "Other sections" = "#b8bec6")
+  cols <- c(TM_SITC1_COLOURS, "Other sections" = "#c8cbd0")
   p <- plotly::plot_ly()
   for (s in levels(droplevels(d$section))) {
     x <- d[d$section == s, ]
