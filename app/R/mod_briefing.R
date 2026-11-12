@@ -79,6 +79,24 @@ briefing_dateline <- function(td) {
          ". The latest two months are provisional and are routinely revised.")
 }
 
+# File name of the PDF briefing for a given latest month. The PDF is rendered
+# by scripts/render_briefing.R into www/briefing/ and served as a static file.
+briefing_pdf_file <- function(latest_date) {
+  paste0("irish-trade-briefing-", format(as.Date(latest_date), "%Y-%m"), ".pdf")
+}
+
+# Download link for the PDF briefing, or NULL when no PDF has been rendered
+# for the app's latest month (so a stale briefing is never offered).
+briefing_pdf_link <- function(td, app_dir = ".") {
+  f <- briefing_pdf_file(td$latest_date)
+  if (!file.exists(file.path(app_dir, "www", "briefing", f))) return(NULL)
+  htmltools::tags$a(
+    class = "btn btn-sm btn-outline-secondary tm-pdf-btn",
+    href = paste0("briefing/", f), download = f, target = "_blank",
+    "Download PDF briefing"
+  )
+}
+
 # ---------------------------------------------------------------------------
 # Metrics (single source of numbers for KPI tiles and key points)
 # ---------------------------------------------------------------------------
@@ -377,20 +395,41 @@ briefing_growth_measures <- function(flow) {
   }
 }
 
-#' Headline versus underlying 3-month y/y growth for one flow.
-briefing_chart_growth <- function(td, flow) {
+#' Data behind the headline-versus-underlying growth chart (shared by the
+#' interactive chart and the PDF briefing).
+#' @return list(series = rows of td$underlying for the flow's measures,
+#'   measures = named labels, x0 = first month shown, yrange = clipped y range
+#'   (2nd-98th percentile of the visible window, always including zero and the
+#'   latest total) or NULL when there are too few points).
+briefing_growth_data <- function(td, flow) {
   d <- td$latest_date
   meas <- briefing_growth_measures(flow)
   u <- td$underlying
   u <- u[u$flow == flow & as.character(u$measure) %in% names(meas), , drop = FALSE]
+  u <- u[order(u$date), , drop = FALSE]
   x0 <- briefing_months_back(d, 60)
+  vals <- u$yoy3_pct[u$date >= x0]
+  vals <- vals[is.finite(vals)]
+  yrange <- NULL
+  if (length(vals) >= 5) {
+    q <- stats::quantile(vals, c(0.02, 0.98), names = FALSE)
+    last_tot <- u$yoy3_pct[as.character(u$measure) == "total" & u$date == d]
+    lo <- min(q[1], 0, last_tot, na.rm = TRUE)
+    hi <- max(q[2], 0, last_tot, na.rm = TRUE)
+    pad <- 0.12 * (hi - lo)
+    yrange <- c(lo - pad, hi + pad)
+  }
+  list(series = u, measures = meas, x0 = x0, yrange = yrange)
+}
+
+#' Headline versus underlying 3-month y/y growth for one flow.
+briefing_chart_growth <- function(td, flow) {
+  d <- td$latest_date
+  g <- briefing_growth_data(td, flow)
+  meas <- g$measures
   p <- plotly::plot_ly()
-  vals <- numeric()
   for (k in names(meas)) {
-    s <- u[as.character(u$measure) == k, , drop = FALSE]
-    s <- s[order(s$date), , drop = FALSE]
-    vis <- s[s$date >= x0, ]
-    vals <- c(vals, vis$yoy3_pct)
+    s <- g$series[as.character(g$series$measure) == k, , drop = FALSE]
     is_total <- k == "total"
     p <- plotly::add_trace(
       p, type = "scatter", mode = "lines", x = s$date, y = s$yoy3_pct, name = meas[[k]],
@@ -398,28 +437,28 @@ briefing_chart_growth <- function(td, flow) {
       line = list(color = BRIEFING_COL[[k]], width = if (is_total) 3.2 else 1.9),
       hovertemplate = paste0("%{y:+.1f}%<extra>", meas[[k]], "</extra>"))
   }
-  vals <- vals[is.finite(vals)]
   p <- tm_layout(p, y_suffix = "%", zero_line = TRUE, range_buttons = TRUE,
-                 x_range = c(x0 - 15, as.Date(d) + 20))
-  if (length(vals) >= 5) {
-    q <- stats::quantile(vals, c(0.02, 0.98), names = FALSE)
-    last_tot <- u$yoy3_pct[as.character(u$measure) == "total" & u$date == d]
-    lo <- min(q[1], 0, last_tot, na.rm = TRUE)
-    hi <- max(q[2], 0, last_tot, na.rm = TRUE)
-    pad <- 0.12 * (hi - lo)
-    p <- plotly::layout(p, yaxis = list(range = c(lo - pad, hi + pad)))
-  }
+                 x_range = c(g$x0 - 15, as.Date(d) + 20))
+  if (!is.null(g$yrange)) p <- plotly::layout(p, yaxis = list(range = g$yrange))
   p |>
     plotly::layout(xaxis = list(hoverformat = "%b %Y")) |>
     plotly::config(doubleClick = "reset+autosize")
 }
 
-#' Contributions of the ten analytical groups to 3-month y/y growth, last 36 months.
-briefing_chart_drivers <- function(td, flow) {
+#' Data behind the growth-drivers chart: contributions of the ten analytical
+#' groups to 3-month y/y growth over the last 36 months (shared by the
+#' interactive chart and the PDF briefing).
+#' @return tibble from tm_contributions(), possibly with zero rows.
+briefing_drivers_data <- function(td, flow) {
   d <- td$latest_date
   gm <- td$group_monthly[td$group_monthly$flow == flow, , drop = FALSE]
   cc <- tm_contributions(gm, "group", basis = "3m", by = "flow")
-  cc <- cc[!is.na(cc$contrib_pp) & cc$date >= briefing_months_back(d, 35) & cc$date <= d, , drop = FALSE]
+  cc[!is.na(cc$contrib_pp) & cc$date >= briefing_months_back(d, 35) & cc$date <= d, , drop = FALSE]
+}
+
+#' Contributions of the ten analytical groups to 3-month y/y growth, last 36 months.
+briefing_chart_drivers <- function(td, flow) {
+  cc <- briefing_drivers_data(td, flow)
   if (nrow(cc) == 0) return(tm_empty_plot("No contribution data"))
   tm_chart_contrib(cc, "group", palette = TM_GROUP_COLOURS, total_name = "Total growth (%)",
                    y_title = "Percentage points")
@@ -518,7 +557,8 @@ briefing_keypoints_card <- function(points, ns = function(x) x) {
 
 briefing_css <- function() {
   htmltools::tags$style(htmltools::HTML("
-.tm-briefing .tm-dateline { color: #5c6270; font-size: 0.82rem; margin: 0.2rem 0 0.7rem 0; }
+.tm-briefing .tm-dateline { color: #5c6270; font-size: 0.82rem; margin: 0.2rem 0 0.7rem 0; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.4rem 1rem; }
+.tm-briefing .tm-pdf-btn { font-size: 0.78rem; padding: 0.15rem 0.6rem; white-space: nowrap; }
 .tm-briefing .tm-briefing-kpis { grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr)) !important; margin-bottom: 1rem; }
 .tm-briefing .tm-keypoints { box-shadow: none; padding: 0.2rem 0 0.2rem 1.4rem; margin: 0; border-left: 0; font-size: 0.95rem; }
 .tm-briefing .tm-keypoints li { margin-bottom: 0.35rem; }
@@ -577,7 +617,8 @@ mod_briefing_server <- function(id, td, flow) {
     })
     fname <- shiny::reactive(briefing_flow_name(fl()))
 
-    output$dateline <- shiny::renderUI(htmltools::div(class = "tm-dateline", briefing_dateline(td)))
+    output$dateline <- shiny::renderUI(htmltools::div(
+      class = "tm-dateline", htmltools::span(briefing_dateline(td)), briefing_pdf_link(td)))
     output$kpis <- shiny::renderUI(briefing_kpi_row(td, met))
     output$keypoints <- shiny::renderUI(briefing_keypoints_card(points, ns))
     output$chart_trade <- plotly::renderPlotly(trade_plot)

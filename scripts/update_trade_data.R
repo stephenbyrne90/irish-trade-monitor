@@ -417,6 +417,16 @@ tryCatch({
   }
 }, error = function(e) message("Driver pre-compute skipped: ", conditionMessage(e)))
 
+# Re-render the PDF briefing so the app's "Download PDF briefing" link matches
+# the refreshed data. Best-effort, like the step above: it needs pandoc and
+# XeLaTeX, and the refresh is still valid without it.
+tryCatch({
+  briefing_script <- file.path(project_root, "scripts", "render_briefing.R")
+  if (file.exists(briefing_script)) {
+    sys.source(briefing_script, envir = new.env())
+  }
+}, error = function(e) message("PDF briefing skipped: ", conditionMessage(e)))
+
 message("Years covered: ", paste(sort(unique(monthly_total$year)), collapse = ", "))
 message("Latest month: ", format(max(monthly_total$date), "%Y-%m"))
 message("Distinct SITC5 products: ", dplyr::n_distinct(monthly_sitc5$product_sitc5))
