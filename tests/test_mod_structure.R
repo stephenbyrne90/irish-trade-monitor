@@ -1,4 +1,4 @@
-# Tests for app/R/mod_structure.R (page "Pharma & concentration").
+# Tests for app/R/mod_structure.R (page "Concentration").
 # Run from the project root:  Rscript tests/test_mod_structure.R
 suppressPackageStartupMessages({
   library(shiny); library(bslib); library(dplyr); library(ggplot2); library(plotly)

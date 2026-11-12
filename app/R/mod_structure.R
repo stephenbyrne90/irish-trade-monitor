@@ -1,4 +1,4 @@
-# Page module "Pharma & concentration" (internal name `structure`).
+# Page module "Concentration" (internal name `structure`).
 #
 # How concentrated is Irish goods trade, is it getting worse, what is inside
 # pharma, and is a move in value a move in volume or in price?

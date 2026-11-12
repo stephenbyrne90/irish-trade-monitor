@@ -10,7 +10,7 @@ Version 2.0 is organised around the questions asked on release day:
 - **Trends** - signal versus noise for any series: 3- and 12-month averages,
   growth on three bases, this year against the previous five, a momentum
   heatmap, growth contributions and a breadth-of-growth index.
-- **Pharma & concentration** - composition, product and market concentration,
+- **Concentration** - composition, product and market concentration,
   what is inside each product group, value versus volume versus unit value.
 - **Markets** - partner-group shares, front-loading and payback, bilateral
   balances and country profiles.
@@ -33,7 +33,7 @@ products, and ten analytical product groups built from them (defined in
 │   ├── R/charts.R           # chart toolkit: one house style for every chart
 │   ├── R/mod_briefing.R     # Briefing page
 │   ├── R/mod_trends.R       # Trends page
-│   ├── R/mod_structure.R    # Pharma & concentration page
+│   ├── R/mod_structure.R    # Concentration page
 │   ├── R/mod_markets.R      # Markets page
 │   └── data/*.parquet       # processed, app-ready data committed with the repo
 ├── scripts/

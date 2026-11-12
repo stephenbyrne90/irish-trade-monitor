@@ -10,8 +10,8 @@ library(tidyr)
 library(readr)
 
 source(file.path("R", "trade_utils.R"))
-# Analytical layer and page modules for the Briefing / Trends / Pharma &
-# concentration / Markets pages. Shiny auto-loads R/ when the app is run with
+# Analytical layer and page modules for the Briefing / Trends / Concentration /
+# Markets pages. Shiny auto-loads R/ when the app is run with
 # runApp(); sourcing explicitly as well keeps `source("app.R")` working.
 for (f in c("analytics.R", "charts.R", "mod_briefing.R", "mod_trends.R",
             "mod_structure.R", "mod_markets.R")) {
@@ -764,7 +764,7 @@ ui <- page_sidebar(
     # --- Analytical pages (new in v2.0): each is a module in R/mod_*.R --------
     nav_panel("Briefing", mod_briefing_ui("briefing")),
     nav_panel("Trends", mod_trends_ui("trends")),
-    nav_panel("Pharma & concentration", mod_structure_ui("structure")),
+    nav_panel("Concentration", mod_structure_ui("structure")),
     nav_panel("Markets", mod_markets_ui("markets")),
     # --- Explorer: the original drill-down pages, unchanged ------------------
     nav_menu(
@@ -1428,7 +1428,7 @@ driving it, and how concentrated and exposed Irish trade is.
 
 - **Briefing** - the month in one page: headline exports, imports and balance next to smoothed and underlying measures, auto-drafted key points, what is driving growth, and the biggest product and market movers.
 - **Trends** - signal versus noise for any series: level with 3- and 12-month averages, growth on three bases, this year against the previous five, a momentum heatmap, growth contributions and a breadth-of-growth index.
-- **Pharma & concentration** - how concentrated trade is and whether that is changing: composition, product and market concentration, what is inside each product group, one product against everything else, and value versus volume versus unit value.
+- **Concentration** - how concentrated trade is and whether that is changing: composition, product and market concentration, what is inside each product group, one product against everything else, and value versus volume versus unit value.
 - **Markets** - geographic exposure: partner-group shares, front-loading and payback, which markets are driving growth, bilateral balances and a country profile.
 
 **Explorer** - the original drill-down pages, for looking up a specific number.
