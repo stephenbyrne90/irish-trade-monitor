@@ -35,10 +35,16 @@ products, and ten analytical product groups built from them (defined in
 │   ├── R/mod_trends.R       # Trends page
 │   ├── R/mod_structure.R    # Concentration page
 │   ├── R/mod_markets.R      # Markets page
-│   └── data/*.parquet       # processed, app-ready data committed with the repo
+│   ├── data/*.parquet       # processed, app-ready data committed with the repo
+│   └── www/briefing/*.pdf   # rendered PDF briefings, served by the app
+├── report/
+│   ├── briefing.Rmd         # the PDF briefing (R Markdown, XeLaTeX)
+│   ├── briefing_charts.R    # static ggplot2 versions of the Briefing charts
+│   └── preamble.tex         # page layout and house style for the PDF
 ├── scripts/
 │   ├── update_trade_data.R  # refresh processed data from the Comext API
-│   └── precompute_drivers.R # pre-compute the monthly-mover decompositions
+│   ├── precompute_drivers.R # pre-compute the monthly-mover decompositions
+│   └── render_briefing.R    # render the PDF briefing into app/www/briefing/
 ├── tests/                   # plain Rscript checks, one per layer / page
 ├── DESCRIPTION              # declared R dependencies
 ├── run_app.command          # macOS helper to launch the app
@@ -110,6 +116,7 @@ Rscript tests/test_mod_briefing.R
 Rscript tests/test_mod_trends.R
 Rscript tests/test_mod_structure.R
 Rscript tests/test_mod_markets.R
+Rscript tests/test_briefing_pdf.R
 ```
 
 Each script rebuilds the analytical series from the bundled data and checks
@@ -129,6 +136,39 @@ writes updated parquet files into `app/data/`.
 It resolves the project root from the script location, so it can be launched
 from outside the repo as well as from the project root. It needs internet access.
 The `xml2` package is required only for the optional label fetch.
+
+## PDF Briefing
+
+A two-page PDF version of the Briefing page, for sending to someone who will
+not open the app:
+
+```bash
+Rscript scripts/render_briefing.R             # overview + exports in detail
+Rscript scripts/render_briefing.R --imports   # adds a third page on imports
+```
+
+Page one has the headline figures, the auto-drafted key points and the exports
+and imports chart; page two has the four export charts (headline versus
+underlying growth, growth drivers, product and market movers) and five
+concentration and market-exposure figures.
+
+The PDF is built from `report/briefing.Rmd`, which calls the same functions as
+the app (`briefing_metrics()`, `briefing_keypoints()`, `briefing_movers()` and
+so on), so its numbers and text always match the Briefing page. Only the charts
+are redrawn, with ggplot2, because the app's interactive plotly charts cannot
+go into a PDF.
+
+The file is written to `app/www/briefing/irish-trade-briefing-YYYY-MM.pdf`,
+named after the latest month in the data. The Briefing page shows a
+"Download PDF briefing" button when the PDF for its latest month exists, so the
+hosted app serves a ready-made file and needs neither pandoc nor LaTeX. The data
+refresh re-renders the briefing automatically (best-effort); commit the new PDF
+along with the refreshed data.
+
+Rendering needs the `rmarkdown` and `knitr` packages, pandoc (the copy bundled
+with RStudio is found automatically) and XeLaTeX (MacTeX, TeX Live or TinyTeX).
+With the optional `showtext` package and the TeX `lato` font package, the PDF
+uses Lato like the app; otherwise it falls back to the default fonts.
 
 ## Data Sources
 

@@ -1,0 +1,146 @@
+---
+output:
+  pdf_document:
+    latex_engine: xelatex
+    includes:
+      in_header: preamble.tex
+papersize: a4
+geometry: "left=1.6cm,right=1.6cm,top=1.4cm,bottom=1.7cm,footskip=0.8cm"
+fontsize: 10pt
+params:
+  app_dir: "../app"
+  imports_page: false
+---
+
+```{r setup, include=FALSE}
+# PDF briefing for the Irish Trade Monitor.
+#
+# Render with:  Rscript scripts/render_briefing.R
+# (that script finds pandoc, renders in a temporary folder and saves the PDF
+# to app/www/briefing/, where the app's Briefing page links to it).
+#
+# All numbers, key points and chart data come from the app's own functions in
+# app/R/, so this document always agrees with the Briefing page. Layout macros
+# (\tmheader, \tmkpi, \tmchart, ...) are defined in preamble.tex; the static
+# charts are in briefing_charts.R.
+#
+# params
+#   app_dir       path to the app folder (holds R/ and data/).
+#   imports_page  TRUE adds a third page with the same four charts for imports.
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, results = "asis")
+# A terminal Rscript often runs in the C locale, where the euro sign would be
+# written to the LaTeX file as "<U+20AC>". Switch to a UTF-8 locale if needed.
+if (!isTRUE(l10n_info()[["UTF-8"]])) {
+  for (loc in c("en_US.UTF-8", "C.UTF-8", "UTF-8")) {
+    if (nzchar(suppressWarnings(Sys.setlocale("LC_CTYPE", loc)))) break
+  }
+}
+suppressPackageStartupMessages({
+  library(shiny); library(bslib); library(dplyr); library(ggplot2); library(plotly)
+  library(DT); library(scales); library(arrow); library(tidyr); library(readr)
+})
+app_dir <- normalizePath(params$app_dir, mustWork = TRUE)
+for (f in c("trade_utils.R", "analytics.R", "charts.R", "mod_briefing.R",
+            "mod_structure.R", "mod_markets.R")) {
+  source(file.path(app_dir, "R", f), local = knitr::knit_global())
+}
+source("briefing_charts.R", local = knitr::knit_global())
+
+td <- tm_build_bundle(read_trade_data(app_dir))
+met <- briefing_metrics(td)
+points <- briefing_keypoints(td, met)
+fam <- pdf_font_family()
+
+# Chart sizes in cm (full text width is 17.8 cm).
+FULL_W <- 17.8; FULL_H <- 9.3
+HALF_W <- 8.6;  HALF_H <- 7.6
+
+# The four detail charts for one flow, laid out two by two.
+detail_page <- function(flow) {
+  fname <- briefing_flow_name(flow)
+  lname <- tolower(fname)
+  fig <- function(plot, name) pdf_save(plot, paste0(name, "_", flow), HALF_W, HALF_H)
+  ex <- if (flow == "1") "excluding aircraft and excluding chemicals & pharma"
+        else "excluding pharmaceuticals and excluding chemicals & pharma"
+  pdf_chart_pair(
+    pdf_chart_block(
+      paste0(fname, ": headline versus underlying growth"),
+      paste0("3-month total vs the same 3 months a year earlier, % (total, ", ex, ")."),
+      fig(pdf_chart_growth(td, flow, fam), "growth")),
+    pdf_chart_block(
+      paste0(fname, ": what is driving growth"),
+      paste0("Contribution of each product group to 3-month y/y ", lname,
+             " growth, percentage points; line = total growth, %. Last 36 months."),
+      fig(pdf_chart_drivers(td, flow, fam), "drivers"))
+  )
+  pdf_chart_pair(
+    pdf_chart_block(
+      paste0(fname, ": biggest product movers"),
+      briefing_movers_subtitle(td, flow, "product"),
+      fig(pdf_chart_movers(td, flow, "product", fam), "products")),
+    pdf_chart_block(
+      paste0(fname, ": biggest market movers"),
+      briefing_movers_subtitle(td, flow, "market"),
+      fig(pdf_chart_movers(td, flow, "market", fam), "markets"))
+  )
+}
+```
+
+```{r header}
+generated <- paste(as.integer(format(Sys.Date(), "%d")), month.name[as.integer(format(Sys.Date(), "%m"))],
+                   format(Sys.Date(), "%Y"))
+pdf_raw(
+  paste0("\\renewcommand{\\tmfootnote}{", pdf_tex(paste0(
+    .TM_SOURCE_NOTE, " Generated ", generated, " by the Irish Trade Monitor.")), "}"),
+  paste0("\\tmheader{Irish goods trade}{Monthly briefing: ", pdf_tex(td$latest_label), "}{",
+         pdf_tex(paste0(briefing_dateline(td),
+                        " Text and charts are generated automatically from Eurostat Comext data.")), "}")
+)
+```
+
+```{r headline-tiles}
+pdf_kpi_row(pdf_briefing_tiles(met))
+pdf_raw("\\vspace{5pt}", paste0("\\tmnote{", pdf_tex(paste0(
+  "Headline figures are monthly values for ", td$latest_label, ", nominal EUR. y/y = on the same month a year earlier; ",
+  "3m on 3m = latest three months on the previous three; 3m y/y = latest three months on the same three a year earlier. ",
+  "Underlying exports exclude chemicals and pharmaceuticals.")), "}"))
+```
+
+\tmsection{Key points}
+
+```{r key-points}
+pdf_keypoints(points)
+```
+
+\tmsection{Exports and imports, last five years}
+
+```{r trade-chart}
+pdf_raw(pdf_chart_block(
+  NULL,
+  "Monthly values (faint lines) and 3-month averages (bold), EUR bn; grey bars show the monthly trade balance (exports minus imports).",
+  pdf_save(pdf_chart_trade(td, fam), "trade", FULL_W, FULL_H)
+))
+```
+
+\newpage
+\tmsection{Exports in detail}
+
+```{r exports-detail}
+detail_page("2")
+```
+
+\tmsection{Concentration and exposure of exports}
+
+```{r exposure-tiles}
+pdf_kpi_row(pdf_exposure_tiles(td, "2"))
+pdf_raw("\\vspace{6pt}", paste0("\\tmnote{", pdf_tex(paste0(
+  "Shares are of exports over the 12 months to ", tm_fmt_month(td$latest_date),
+  ". Products are 5-digit SITC. The effective number of products is 10,000 divided by the ",
+  "Herfindahl-Hirschman index (HHI): exports spread evenly over that many products would be equally concentrated.")),
+  "}"))
+```
+
+```{r imports-detail, eval=isTRUE(params$imports_page)}
+pdf_raw("\\newpage", "\\tmsection{Imports in detail}")
+detail_page("1")
+```

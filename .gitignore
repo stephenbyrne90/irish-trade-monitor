@@ -6,6 +6,13 @@
 /site/_site/
 /.nojekyll
 
+# Intermediates left behind when report/briefing.Rmd is knitted in place
+# (scripts/render_briefing.R renders in a temporary folder instead).
+/report/figs/
+/report/briefing.pdf
+/report/briefing.tex
+/report/briefing.log
+
 # OS / editor cruft
 .DS_Store
 **/.DS_Store

@@ -28,4 +28,7 @@ Imports:
     tibble,
     tidyr
 Suggests:
+    knitr,
+    rmarkdown,
+    showtext,
     xml2
