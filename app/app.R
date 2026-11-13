@@ -116,11 +116,22 @@ app_theme <- bs_theme(
   primary = "#004d44",
   secondary = "#5c6270",
   success = "#2c55a2",
-  bg = "#f6f6f2",
+  # Pure white surfaces. bslib derives every Bootstrap surface (cards, inputs,
+  # dropdowns, the grey ramp) from `bg`, so any tint here spreads through the
+  # whole app. The page canvas is a separate cool grey set in the CSS below.
+  bg = "#ffffff",
   fg = "#0b0c0c",
   base_font = font_google("Lato"),
   heading_font = font_google("Lato"),
-  code_font = font_google("IBM Plex Mono")
+  code_font = font_google("IBM Plex Mono"),
+  # Tight, document-like corners instead of the soft rounded "app" look.
+  "border-radius" = "0.25rem",
+  "border-radius-sm" = "0.1875rem",
+  "border-radius-lg" = "0.25rem",
+  "card-border-color" = "#dfe3e8",
+  "input-border-color" = "#c5cad3",
+  "dropdown-border-color" = "#d5d9df",
+  "hr-border-color" = "#d5d9df"
 )
 
 # ---------------------------------------------------------------------------
@@ -129,27 +140,44 @@ app_theme <- bs_theme(
 # A single source of truth for the app's colours, chart theme and table
 # styling so every plot and table reads as one coherent, presentation-quality
 # product rather than a set of unrelated outputs.
+#
+# Neutrals are a cool grey ramp with no yellow in it: white surfaces on a
+# #f4f5f7 canvas, #e5e7eb hairlines, #5c6270 secondary text, #0b0c0c ink.
+# The only warm colours are data colours (amber, terracotta, straw).
 
-# Core institutional palette. The teal/burgundy pairing matches the bslib
-# theme above; the highlight red is reserved for "latest" / "selected" points.
+# Core institutional palette. The teal/blue pairing matches the bslib theme
+# above; the highlight red is reserved for "latest" / "selected" points.
 trade_colors <- list(
   primary   = "#004d44",  # teal  - main series, primary bars
-  accent    = "#2c55a2",  # burgundy - secondary series
+  accent    = "#2c55a2",  # blue  - secondary series
+  amber     = "#c9821a",  # amber - the second series beside teal
   highlight = "#ae1122",  # red   - latest / selected marker
   ink       = "#0b0c0c",  # body text
   grid      = "#e5e7eb",  # axis gridlines
   muted     = "#5c6270"   # axis titles, captions
 )
 
-# Ten coherent, reasonably distinct colours for the SITC 1-digit sections.
-# Replaces RColorBrewer "Set3" (pastel, low contrast) with a steadier palette
-# anchored on the teal/burgundy identity. Used both for the stacked
-# contribution chart and, via the discrete-scale defaults below, for every
-# multi-series ggplot, so a given SITC section keeps the same colour app-wide.
+# Typeface stack for the plotly charts built in this file (the module charts
+# take theirs from .TM_FONT in R/charts.R; keep the two in step).
+trade_font_family <- "'Lato', 'Helvetica Neue', Arial, sans-serif"
+
+# Ten coherent, reasonably distinct colours for the SITC 1-digit sections
+# (0-9, in order). Sections that map one-to-one onto an analytical group share
+# that group's colour (0 food, 3 fuels, 5 chemicals, 7 machinery, 9 other), so
+# a given SITC section keeps the same colour app-wide. Used for the stacked
+# contribution chart and, via the discrete-scale defaults below, for the
+# section line chart. Keep in step with TM_SITC1_COLOURS in R/analytics.R.
 sitc1_section_palette <- c(
-  "#ab9965", "#6b5b2e", "#8c5a2b", "#a3402b", "#d9cca3",
+  "#c9821a", "#7c62b8", "#6c7a99", "#b5561f", "#dcb945",
   "#004d44", "#8fc1b5", "#2c55a2", "#8ba6d6", "#c8cbd0"
 )
+
+# Ordered light-to-dark teal ramp for series that are years (earliest year
+# lightest, latest darkest), so the colour carries the time order.
+trade_year_palette <- function(n) {
+  if (n <= 1) return(rep(trade_colors$primary, max(n, 0)))
+  grDevices::colorRampPalette(c("#b5d3cc", "#5f9d91", trade_colors$primary))(n)
+}
 
 # Shared ggplot theme: clean, minimal chrome, white panels (the default grey
 # ggplot panel is the main "prototype" tell once piped through plotly).
@@ -168,6 +196,26 @@ theme_trade <- function(base_size = 13) {
       legend.text      = ggplot2::element_text(size = ggplot2::rel(0.8)),
       plot.margin      = ggplot2::margin(6, 10, 6, 6)
     )
+}
+
+# House style for the plotly charts built in this file (ggplotly and plot_ly):
+# the app typeface, ink and gridline colours, a plain white hover label and no
+# plotly logo. Styling only - it never touches data, traces, axes ranges or
+# titles. Pipe it last so it applies on top of each chart's own layout().
+trade_plotly_style <- function(p) {
+  # Colours only: axis titles are left alone (a chart may give its title as a
+  # plain string, which a nested list here would overwrite).
+  axis_style <- list(gridcolor = trade_colors$grid, linecolor = "#d8dadf", tickcolor = "#d8dadf")
+  p |>
+    plotly::layout(
+      font = list(family = trade_font_family, color = trade_colors$ink),
+      paper_bgcolor = "white", plot_bgcolor = "white",
+      hoverlabel = list(bgcolor = "white", bordercolor = "#9ea3aa",
+                        font = list(family = trade_font_family, color = trade_colors$ink, size = 12)),
+      legend = list(font = list(color = trade_colors$ink)),
+      xaxis = axis_style, yaxis = axis_style
+    ) |>
+    plotly::config(displaylogo = FALSE)
 }
 
 # Apply the theme and the institutional discrete palette globally, so every
@@ -354,7 +402,7 @@ productFinderServer <- function(id, choice_fn, preselect = shiny::reactive(NULL)
 
 metric_card <- function(title, value, subtitle = NULL) {
   card(
-    class = "h-100 shadow-sm border-0",
+    class = "h-100 shadow-sm border-0 trade-monitor-metric",
     card_header(title),
     card_body(
       tags$div(class = "display-6 fw-semibold", value),
@@ -404,7 +452,8 @@ ft_hbar <- function(data, label_col, value_col, accent = trade_colors$primary,
       yaxis = list(title = "", automargin = TRUE, tickfont = list(size = 12.5)),
       showlegend = FALSE
     ) |>
-    plotly::config(displayModeBar = FALSE)
+    plotly::config(displayModeBar = FALSE) |>
+    trade_plotly_style()
 }
 
 quick_link_button <- function(id, label) {
@@ -505,73 +554,282 @@ ui <- page_sidebar(
       content = "Irish Trade Monitor - a dashboard for monitoring Irish goods trade with the World by product and country, built on Eurostat Comext data."
     ),
     tags$style(HTML("
-      .trade-monitor-intro {
-        max-width: 72rem;
-        color: #4a4f57;
-        font-size: 0.98rem;
-        line-height: 1.55;
+      /* ==== Irish Trade Monitor house style ================================
+         Neutrals (cool, no yellow): canvas #f4f5f7, surface #ffffff,
+         subtle fill #eef0f3, hairline #e1e4e8, rule #d5d9df, control border
+         #c5cad3. Text: ink #0b0c0c, secondary #4a4f57, muted #5c6270.
+         Brand: teal #004d44 (dark #003a33, tint #e6efed).
+         Type (Lato 400/700): 0.75rem labels and notes, 0.8125rem secondary,
+         0.875rem tables and controls, 1rem body and card titles,
+         1.75rem headline figures.
+         Surfaces are flat: 1px hairline, 0.25rem corners, no drop shadows. */
+
+      /* ---- Page canvas ---------------------------------------------------- */
+      body {
+        background-color: #f4f5f7;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
       }
+
+      /* ---- Masthead ------------------------------------------------------- */
+      /* A full-width band in the Department green, as on gov.ie, instead of a
+         floating rounded card. */
       .trade-monitor-brand {
-        line-height: 1.05;
-        background: #ffffff;
-        border: 1px solid #dde3e0;
-        border-radius: 0.9rem;
-        padding: 0.85rem 0.95rem 0.8rem;
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-        margin-bottom: 0.8rem;
+        background: #004d44;
+        color: #ffffff;
+        line-height: 1.2;
+        padding: 0.7rem 1.5rem 0.75rem;
+        margin: 0;
       }
       .trade-monitor-title-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 0.75rem;
+        font-size: 1.1875rem;
         font-weight: 700;
-        color: #0b0c0c;
+        color: #ffffff;
       }
       .trade-monitor-version {
         display: inline-flex;
         align-items: center;
-        padding: 0.16rem 0.5rem;
-        border-radius: 999px;
-        background: #004d44;
+        padding: 0.05rem 0.4rem;
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        border-radius: 0.1875rem;
+        background: transparent;
         color: #ffffff;
-        font-size: 0.72rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .trade-monitor-byline {
+        margin-top: 0.2rem;
+        font-size: 0.75rem;
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
+        color: #d4e3e0;
+      }
+
+      /* ---- Sidebar -------------------------------------------------------- */
+      .bslib-page-sidebar .bslib-sidebar-layout > .sidebar {
+        background-color: #ffffff;
+        border-right: 1px solid #e1e4e8;
+      }
+      .bslib-page-sidebar .bslib-sidebar-layout > .collapse-toggle {
+        color: #5c6270;
+      }
+
+      /* ---- Page-level navigation ------------------------------------------ */
+      /* The outer tab set is page navigation, not a card: drop its surface and
+         border so the content cards sit directly on the canvas. */
+      .bslib-sidebar-layout > .main > .card {
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        overflow: visible;
+      }
+      .bslib-sidebar-layout > .main > .card[data-full-screen='true'] {
+        background: #f4f5f7;
+        padding: 0.5rem 1.25rem 1rem;
+      }
+      .bslib-sidebar-layout > .main > .card > .card-header {
+        background: transparent;
+        border-bottom: 1px solid #d5d9df;
+        padding: 0;
+      }
+      .bslib-sidebar-layout > .main > .card > .card-header .nav-tabs {
+        margin: 0;
+        border-bottom: 0;
+      }
+      .bslib-sidebar-layout > .main > .card > .tab-content > .tab-pane {
+        padding: 1.1rem 0 0.25rem;
+      }
+      .nav-tabs .nav-link {
+        color: #4a4f57;
+        font-size: 0.9375rem;
+        font-weight: 700;
+        border: 0;
+        border-bottom: 3px solid transparent;
+        border-radius: 0;
+        margin-bottom: -1px;
+        padding: 0.6rem 1rem;
+      }
+      .nav-tabs .nav-link:hover,
+      .nav-tabs .nav-link:focus-visible {
+        color: #004d44;
+        border-bottom-color: #c5cad3;
+      }
+      .nav-tabs .nav-link.active,
+      .nav-tabs .nav-item.show .nav-link {
+        color: #004d44;
+        background: transparent;
+        border-bottom-color: #004d44;
+      }
+      .dropdown-menu {
+        border-color: #d5d9df;
+        box-shadow: 0 4px 12px rgba(11, 12, 12, 0.08);
+        font-size: 0.9375rem;
+        padding: 0.25rem 0;
+      }
+      .dropdown-item {
+        color: #0b0c0c;
+        padding: 0.35rem 1rem;
+      }
+      .dropdown-item:hover,
+      .dropdown-item:focus {
+        background: #eef0f3;
+        color: #0b0c0c;
+      }
+      .dropdown-item.active,
+      .dropdown-item:active {
+        background: #004d44;
+        color: #ffffff;
+      }
+
+      /* ---- Cards ---------------------------------------------------------- */
+      /* One flat surface for every card: white, hairline border, small radius.
+         Hierarchy comes from the canvas contrast and the type, not shadows. */
+      .tab-content .card {
+        background: #ffffff;
+        border: 1px solid #e1e4e8 !important;
+        border-radius: 0.25rem;
+        box-shadow: none !important;
+      }
+      .trade-monitor-card {
+        overflow: hidden;
+      }
+      .trade-monitor-card .card-body {
+        padding: 1rem 1.15rem;
+      }
+      .trade-monitor-card > .card-header {
+        background: #ffffff;
+        border-bottom: 1px solid #e1e4e8;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0b0c0c;
+        padding: 0.7rem 1.15rem;
+      }
+      .card-footer.small {
+        background: #fafbfc;
+        border-top: 1px solid #eceef1;
+        font-size: 0.75rem;
+        line-height: 1.5;
+        padding: 0.55rem 1.15rem;
+      }
+      .trade-monitor-intro {
+        max-width: 72rem;
+        color: #4a4f57;
+        font-size: 0.9375rem;
+        line-height: 1.55;
       }
       .trade-monitor-quick-links {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.75rem;
+        gap: 0.5rem 0.6rem;
       }
       .trade-monitor-quick-link {
         border-width: 1px;
       }
-      .trade-monitor-byline {
-        margin-top: 0.32rem;
-        font-size: 0.9rem;
+      /* Section heading that introduces a drill-down (pair) block. */
+      .trade-monitor-drilldown-head {
+        margin: 1.4rem 0 0.6rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid #d5d9df;
+        font-size: 1.0625rem;
         font-weight: 700;
-        letter-spacing: 0.08em;
+        color: #003a33;
+      }
+
+      /* ---- Metric (KPI) cards -------------------------------------------- */
+      /* A thin accent rule plus a quieter, uppercase header turns the headline
+         cards into clean KPI tiles. */
+      .trade-monitor-metric-grid .card,
+      .layout-column-wrap .card,
+      .card.trade-monitor-metric {
+        border-top: 3px solid #004d44 !important;
+      }
+      .layout-column-wrap .card .card-header,
+      .trade-monitor-metric-grid .card .card-header,
+      .trade-monitor-metric > .card-header {
+        background: transparent;
+        border-bottom: none;
         text-transform: uppercase;
-        color: #374151;
+        letter-spacing: 0.05em;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #5c6270;
+        padding-bottom: 0;
       }
-      .trade-monitor-card .card-body {
-        padding: 1.1rem 1.2rem;
+      .layout-column-wrap .card .display-6,
+      .trade-monitor-metric .display-6 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        line-height: 1.15;
+        color: #0b0c0c;
+        font-variant-numeric: tabular-nums;
       }
-      .trade-monitor-table .dataTables_filter {
-        margin-bottom: 0.75rem;
+      .layout-column-wrap .card .card-body p,
+      .trade-monitor-metric .card-body p {
+        font-size: 0.875rem;
       }
-      .trade-monitor-table .dataTables_info {
+
+      /* ---- Plotly chrome -------------------------------------------------- */
+      /* Range-slider masks: a light wash instead of plotly's heavy dark grey. */
+      .js-plotly-plot .rangeslider-mask-min,
+      .js-plotly-plot .rangeslider-mask-max {
+        fill: #5c6270 !important;
+        fill-opacity: 0.16 !important;
+      }
+      .js-plotly-plot .rangeslider-bg {
+        stroke: #d5d9df !important;
+      }
+
+      /* Empty-state and validation messages: the default 50% grey fails AA. */
+      .tab-content .shiny-output-error-validation {
+        color: #5c6270;
+      }
+
+      /* ---- Form controls -------------------------------------------------- */
+      .control-label,
+      .shiny-input-container > label {
+        font-size: 0.8125rem;
+        font-weight: 700;
         color: #4a4f57;
-        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
       }
-      .trade-monitor-table table.dataTable tbody tr.selected > * {
-        box-shadow: inset 0 0 0 9999px rgba(15, 76, 92, 0.14);
-        color: inherit;
+      .form-control,
+      .form-select,
+      .selectize-input {
+        border-color: #c5cad3;
+        font-size: 0.9375rem;
       }
-      .trade-monitor-table table.dataTable tbody td {
-        vertical-align: top;
+      .form-control:focus,
+      .form-select:focus,
+      .selectize-input.focus {
+        border-color: #004d44;
+        box-shadow: 0 0 0 0.2rem rgba(0, 77, 68, 0.15);
+      }
+      .selectize-dropdown {
+        font-size: 0.9375rem;
+        border-color: #c5cad3;
+      }
+      .selectize-dropdown .active:not(.selected) {
+        background: #eef0f3;
+        color: #0b0c0c;
+      }
+      .form-check-label,
+      .radio-inline,
+      .checkbox-inline {
+        font-size: 0.9375rem;
+      }
+      /* A dropdown list must be able to extend past the card that holds its
+         control; by default the card clips it and scrolls internally. */
+      .tab-content .card:has(.selectize-control):not([data-full-screen='true']),
+      .tab-content .card:has(.selectize-control):not([data-full-screen='true']) > .card-body {
+        overflow: visible;
       }
       .product-finder .form-group {
         margin-bottom: 0.65rem;
@@ -589,127 +847,106 @@ ui <- page_sidebar(
       .product-finder .dataTables_wrapper .dataTables_paginate {
         margin-top: 0.6rem;
       }
-      .trade-monitor-metric-grid .card-header {
-        font-size: 0.9rem;
+      /* Inline radio toggles sitting inside card headers should not carry the
+         default bottom margin that would misalign them with the title. */
+      .card-header .shiny-input-radiogroup {
+        margin-bottom: 0;
       }
-      /* Section heading that introduces a drill-down (pair) block. */
-      .trade-monitor-drilldown-head {
-        margin: 1.4rem 0 0.6rem;
-        padding-bottom: 0.4rem;
-        border-bottom: 2px solid #e5e7eb;
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: #003a33;
-      }
-
-      /* ---- Cards ---------------------------------------------------------- */
-      /* Slightly warmer page background and softer card surfaces give the app
-         a steadier, more 'briefing document' feel than flat white-on-white. */
-      .trade-monitor-card {
-        border-radius: 0.75rem;
-        overflow: hidden;
-      }
-      .trade-monitor-card > .card-header {
-        background: #ffffff;
-        border-bottom: 1px solid #e5e7eb;
-        font-weight: 600;
-        color: #0b0c0c;
-        letter-spacing: 0.01em;
-        padding: 0.7rem 1.2rem;
-      }
-      .card-footer.small {
-        background: #fafaf7;
-        border-top: 1px solid #eef0ee;
-        line-height: 1.45;
-      }
-
-      /* ---- Metric (KPI) cards -------------------------------------------- */
-      /* A thin accent rule plus a quieter, uppercase header turns the headline
-         cards into clean KPI tiles. */
-      .trade-monitor-metric-grid .card,
-      .layout-column-wrap .card {
-        border-top: 3px solid #004d44;
-      }
-      .layout-column-wrap .card .card-header,
-      .trade-monitor-metric-grid .card .card-header {
-        background: transparent;
-        border-bottom: none;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        font-size: 0.74rem;
-        font-weight: 700;
-        color: #5c6270;
-        padding-bottom: 0;
-      }
-      .layout-column-wrap .card .display-6 {
-        font-size: 1.85rem;
-        color: #003a33;
-      }
-
-      /* ---- Navigation tabs ----------------------------------------------- */
-      .nav-tabs .nav-link {
-        color: #4a4f57;
-        font-weight: 600;
-        border: none;
-        border-bottom: 2px solid transparent;
-      }
-      .nav-tabs .nav-link:hover {
-        color: #004d44;
-        border-bottom-color: #d8dadf;
-      }
-      .nav-tabs .nav-link.active {
-        color: #004d44;
-        background: transparent;
-        border-bottom: 2px solid #004d44;
+      .card-header .shiny-input-radiogroup .control-label {
+        display: none;
       }
 
       /* ---- DataTables ----------------------------------------------------- */
-      /* Quiet header band, right-aligned numerics and roomy rows make the
-         tables read like report tables rather than raw data dumps. */
+      /* Quiet header band, tabular figures and hairline rows make the tables
+         read like report tables rather than raw data dumps. */
+      table.trade-dt.dataTable {
+        font-size: 0.875rem;
+      }
       table.trade-dt.dataTable thead th {
-        background: #efefe9;
-        color: #374151;
-        font-size: 0.72rem;
+        background: #eef0f3;
+        color: #4a4f57;
+        font-size: 0.75rem;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        border-bottom: 2px solid #dde3e0 !important;
+        letter-spacing: 0.04em;
+        border-top: 0;
+        border-bottom: 1px solid #c5cad3 !important;
+      }
+      .trade-monitor-table table.dataTable tbody td {
+        vertical-align: top;
       }
       table.trade-dt.dataTable tbody td {
         vertical-align: middle;
         font-variant-numeric: tabular-nums;
+        border-color: #eceef1;
       }
-      table.trade-dt.dataTable tbody tr:hover > * {
-        box-shadow: inset 0 0 0 9999px rgba(15, 76, 92, 0.05);
+      table.trade-dt.dataTable tbody tr:hover > *,
+      table.trade-dt.dataTable.table-hover > tbody > tr:hover > * {
+        box-shadow: inset 0 0 0 9999px rgba(0, 77, 68, 0.045);
       }
-      table.trade-dt.dataTable tbody tr.selected > * {
-        box-shadow: inset 0 0 0 9999px rgba(15, 76, 92, 0.14);
+      /* Selected rows keep the same teal wash while hovered (DataTables'
+         default hover rule would otherwise repaint them solid blue). */
+      table.trade-dt.dataTable tbody tr.selected > *,
+      table.trade-dt.dataTable.table-hover > tbody > tr.selected:hover > *,
+      .trade-monitor-table table.dataTable tbody tr.selected > *,
+      .trade-monitor-table table.dataTable.table-hover > tbody > tr.selected:hover > * {
+        box-shadow: inset 0 0 0 9999px rgba(0, 77, 68, 0.12);
         color: inherit;
       }
-      .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-        background: #004d44 !important;
-        border-color: #004d44 !important;
-        color: #ffffff !important;
-        border-radius: 0.4rem;
+      .trade-monitor-table .dataTables_filter {
+        margin-bottom: 0.75rem;
+      }
+      .dataTables_wrapper .dataTables_info,
+      .dataTables_wrapper .dataTables_filter,
+      .dataTables_wrapper .dataTables_length {
+        color: #4a4f57;
+        font-size: 0.8125rem;
       }
       .dataTables_wrapper .dataTables_filter input {
-        border: 1px solid #d8dadf;
-        border-radius: 0.4rem;
+        border: 1px solid #c5cad3;
+        border-radius: 0.25rem;
         padding: 0.2rem 0.5rem;
+      }
+      .dataTables_wrapper .dataTables_paginate .pagination {
+        margin-top: 0.5rem;
+        margin-bottom: 0.25rem;
+      }
+      .dataTables_wrapper .dataTables_paginate .page-item .page-link {
+        background: #ffffff;
+        border: 1px solid #d5d9df;
+        color: #004d44;
+        font-size: 0.8125rem;
+        padding: 0.25rem 0.6rem;
+      }
+      .dataTables_wrapper .dataTables_paginate .page-item .page-link:hover {
+        background: #eef0f3;
+        color: #003a33;
+      }
+      .dataTables_wrapper .dataTables_paginate .page-item.active .page-link {
+        background: #004d44;
+        border-color: #004d44;
+        color: #ffffff;
+      }
+      .dataTables_wrapper .dataTables_paginate .page-item.disabled .page-link {
+        background: #ffffff;
+        border-color: #e1e4e8;
+        color: #6b7280;
       }
 
       /* ---- About / methodology (README) page ----------------------------- */
       .trade-monitor-readme {
         max-width: 56rem;
-        color: #374151;
+        color: #3b4047;
         line-height: 1.6;
       }
       .trade-monitor-readme h2 {
+        font-size: 1.625rem;
         font-weight: 700;
         color: #003a33;
         margin-bottom: 0.5rem;
       }
       .trade-monitor-readme h3 {
-        font-size: 1.05rem;
+        font-size: 1.0625rem;
         font-weight: 700;
         color: #0b0c0c;
         margin-top: 1.6rem;
@@ -722,37 +959,49 @@ ui <- page_sidebar(
         margin-bottom: 0.25rem;
       }
 
-      /* Inline radio toggles sitting inside card headers should not carry the
-         default bottom margin that would misalign them with the title. */
-      .card-header .shiny-input-radiogroup {
-        margin-bottom: 0;
-      }
-      .card-header .shiny-input-radiogroup .control-label {
-        display: none;
-      }
-
       /* ---- App footer ----------------------------------------------------- */
       .trade-monitor-credit {
         color: #4a4f57;
-        border-top: 1px solid #e5e7eb;
+        border-top: 1px solid #e1e4e8;
         padding-top: 0.55rem;
         margin-top: 0.4rem;
       }
       .trade-monitor-footer {
         margin-top: 1.25rem;
         padding-top: 0.9rem;
-        border-top: 1px solid #e5e7eb;
+        border-top: 1px solid #d5d9df;
         color: #5c6270;
-        font-size: 0.82rem;
+        font-size: 0.8125rem;
         line-height: 1.5;
       }
 
       @media (max-width: 991.98px) {
-        .trade-monitor-intro {
-          font-size: 0.95rem;
+        .layout-column-wrap .card .display-6,
+        .trade-monitor-metric .display-6 {
+          font-size: 1.5rem;
         }
-        .layout-column-wrap .card .display-6 {
-          font-size: 1.55rem;
+      }
+      @media (max-width: 575.98px) {
+        .trade-monitor-brand {
+          padding: 0.6rem 1rem 0.65rem;
+        }
+        .trade-monitor-title-row {
+          font-size: 1.0625rem;
+        }
+        .nav-tabs .nav-link {
+          padding: 0.5rem 0.7rem;
+        }
+        /* Give the content the full phone width; the tab row steps right to
+           clear the sidebar toggle instead of the whole page being inset. */
+        .bslib-page-sidebar .bslib-sidebar-layout > .main {
+          padding: 0.75rem 0.75rem 1rem !important;
+        }
+        .bslib-sidebar-layout.sidebar-collapsed > .main > .card > .card-header {
+          padding-left: 2rem;
+        }
+        .bslib-page-sidebar .bslib-sidebar-layout.sidebar-collapsed > .collapse-toggle {
+          background-color: #ffffff;
+          border: 1px solid #d5d9df;
         }
       }
     "))
@@ -2256,7 +2505,8 @@ server <- function(input, output, session) {
       labs(x = NULL, y = NULL)
 
     ggplotly(p, tooltip = c("x", "y")) |>
-      layout(margin = list(l = 40, r = 20, t = 10, b = 40))
+      layout(margin = list(l = 40, r = 20, t = 10, b = 40)) |>
+      trade_plotly_style()
   })
 
   product_country_cache <- new.env(parent = emptyenv())
@@ -2574,7 +2824,7 @@ server <- function(input, output, session) {
     plot_ly(d, x = ~date, y = ~bn) |>
       add_lines(
         line = list(color = trade_colors$primary, width = 2.4),
-        fill = "tozeroy", fillcolor = "rgba(15, 76, 92, 0.08)",
+        fill = "tozeroy", fillcolor = "rgba(0, 77, 68, 0.08)",
         hovertemplate = "%{x|%b %Y}<br>€%{y:.1f}bn<extra></extra>"
       ) |>
       add_markers(
@@ -2597,7 +2847,8 @@ server <- function(input, output, session) {
           font = list(color = trade_colors$highlight, size = 12)
         ))
       ) |>
-      config(displayModeBar = FALSE)
+      config(displayModeBar = FALSE) |>
+      trade_plotly_style()
   })
 
   # Trade by SITC 1-digit section as a table (value + share of total goods
@@ -2754,9 +3005,10 @@ server <- function(input, output, session) {
           x1 = 1,
           y0 = 0,
           y1 = 0,
-          line = list(color = "#9ca3af", width = 1)
+          line = list(color = "#9ea3aa", width = 1)
         ))
-      )
+      ) |>
+      trade_plotly_style()
   })
 
   output$monthly_sitc1_plot <- renderPlotly({
@@ -2768,7 +3020,8 @@ server <- function(input, output, session) {
       labs(x = NULL, y = NULL, color = NULL)
 
     ggplotly(p, tooltip = c("x", "y", "colour")) |>
-      layout(margin = list(l = 40, r = 20, t = 10, b = 40), legend = list(orientation = "h", y = -0.25))
+      layout(margin = list(l = 40, r = 20, t = 10, b = 40), legend = list(orientation = "h", y = -0.25)) |>
+      trade_plotly_style()
   })
 
   output$monitor_month_total_card <- renderUI({
@@ -2875,7 +3128,8 @@ server <- function(input, output, session) {
       labs(x = NULL, y = NULL)
 
     ggplotly(p, tooltip = c("x", "y")) |>
-      layout(margin = list(l = 40, r = 20, t = 10, b = 40))
+      layout(margin = list(l = 40, r = 20, t = 10, b = 40)) |>
+      trade_plotly_style()
   })
 
   output$monitor_partner_sitc1_plot <- renderPlotly({
@@ -2891,7 +3145,8 @@ server <- function(input, output, session) {
       labs(x = NULL, y = NULL)
 
     ggplotly(p, tooltip = c("x", "y")) |>
-      layout(margin = list(l = 20, r = 20, t = 10, b = 40))
+      layout(margin = list(l = 20, r = 20, t = 10, b = 40)) |>
+      trade_plotly_style()
   })
 
   # Compact, basis-aware movers table: only the change for the chosen
@@ -3221,13 +3476,14 @@ server <- function(input, output, session) {
         margin = list(l = 6, r = 28, t = 6, b = 30),
         bargap = 0.32,
         xaxis = list(title = "Contribution to the change (percentage points)", zeroline = TRUE,
-                     zerolinecolor = "#9ca3af", zerolinewidth = 1.5,
+                     zerolinecolor = "#9ea3aa", zerolinewidth = 1.5,
                      showgrid = FALSE, showticklabels = FALSE,
                      range = c(-span * 1.4, span * 1.4)),
         yaxis = list(title = "", automargin = TRUE, tickfont = list(size = 12)),
         showlegend = FALSE
       ) |>
-      config(displayModeBar = FALSE)
+      config(displayModeBar = FALSE) |>
+      trade_plotly_style()
   })
 
   observeEvent(input$pc_open_product_over_time, {
@@ -3252,10 +3508,12 @@ server <- function(input, output, session) {
       geom_col(position = position_dodge(width = 0.8)) +
       coord_flip() +
       scale_y_continuous(labels = label_eur_billions) +
+      scale_fill_manual(values = trade_year_palette(dplyr::n_distinct(selected_annual_sitc1()$year))) +
       labs(x = NULL, y = NULL, fill = "Year")
 
     ggplotly(p, tooltip = c("x", "y", "fill")) |>
-      layout(margin = list(l = 20, r = 20, t = 10, b = 40))
+      layout(margin = list(l = 20, r = 20, t = 10, b = 40)) |>
+      trade_plotly_style()
   })
 
   output$annual_totals_table <- renderDT({
@@ -3372,7 +3630,8 @@ server <- function(input, output, session) {
       scale_x_date(date_labels = "%Y", date_breaks = "1 year") +
       labs(x = NULL, y = NULL)
     ggplotly(p, tooltip = c("x", "y")) |>
-      layout(margin = list(l = 40, r = 20, t = 10, b = 40))
+      layout(margin = list(l = 40, r = 20, t = 10, b = 40)) |>
+      trade_plotly_style()
   })
 
   output$country_product_view_banner <- renderUI({
@@ -3580,7 +3839,8 @@ server <- function(input, output, session) {
       labs(x = NULL, y = NULL)
 
     ggplotly(p, tooltip = c("x", "y")) |>
-      layout(margin = list(l = 40, r = 20, t = 10, b = 40))
+      layout(margin = list(l = 40, r = 20, t = 10, b = 40)) |>
+      trade_plotly_style()
   })
 
   output$country_product_share_plot <- renderPlotly({
@@ -3611,7 +3871,8 @@ server <- function(input, output, session) {
         xaxis = list(title = NULL),
         margin = list(l = 40, r = 20, t = 10, b = 40),
         legend = list(orientation = "h", y = 1.1, x = 0)
-      )
+      ) |>
+      trade_plotly_style()
   })
 
   output$product_country_view_banner <- renderUI({
@@ -3838,7 +4099,8 @@ server <- function(input, output, session) {
       labs(x = NULL, y = NULL)
 
     ggplotly(p, tooltip = c("x", "y")) |>
-      layout(margin = list(l = 40, r = 20, t = 10, b = 40))
+      layout(margin = list(l = 40, r = 20, t = 10, b = 40)) |>
+      trade_plotly_style()
   })
 
   output$product_country_share_plot <- renderPlotly({
@@ -3871,7 +4133,8 @@ server <- function(input, output, session) {
         xaxis = list(title = NULL),
         margin = list(l = 40, r = 20, t = 10, b = 40),
         legend = list(orientation = "h", y = 1.1, x = 0)
-      )
+      ) |>
+      trade_plotly_style()
   })
 
   # Annual comparison: leading detailed (5-digit) products for the latest
@@ -3964,7 +4227,8 @@ server <- function(input, output, session) {
       labs(x = NULL, y = NULL)
 
     ggplotly(p, tooltip = c("x", "y")) |>
-      layout(margin = list(l = 40, r = 20, t = 10, b = 40))
+      layout(margin = list(l = 40, r = 20, t = 10, b = 40)) |>
+      trade_plotly_style()
   })
 
   output$pe_share_plot <- renderPlotly({
@@ -3988,12 +4252,14 @@ server <- function(input, output, session) {
     p <- share_history |>
       ggplot(aes(x = date, y = share_value, color = share_type)) +
       geom_line(linewidth = 1) +
+      scale_color_manual(values = c(trade_colors$primary, trade_colors$amber)) +
       scale_y_continuous(labels = label_share) +
       scale_x_date(date_labels = "%Y", date_breaks = "1 year") +
       labs(x = NULL, y = NULL, color = NULL)
 
     ggplotly(p, tooltip = c("x", "y", "colour")) |>
-      layout(margin = list(l = 40, r = 20, t = 10, b = 40), legend = list(orientation = "h", y = -0.25))
+      layout(margin = list(l = 40, r = 20, t = 10, b = 40), legend = list(orientation = "h", y = -0.25)) |>
+      trade_plotly_style()
   })
 
 }

@@ -14,7 +14,7 @@
 # ---------------------------------------------------------------------------
 
 BRIEFING_COL <- list(
-  total = "#0b0c0c", ex_pharma = "#2e7d6f", ex_chem = "#9a7b2f", ex_aircraft = "#2c55a2",
+  total = "#0b0c0c", ex_pharma = "#2e7d6f", ex_chem = "#c9821a", ex_aircraft = "#2c55a2",
   bars = "rgba(154,165,177,0.45)"
 )
 
@@ -557,10 +557,10 @@ briefing_keypoints_card <- function(points, ns = function(x) x) {
 
 briefing_css <- function() {
   htmltools::tags$style(htmltools::HTML("
-.tm-briefing .tm-dateline { color: #5c6270; font-size: 0.82rem; margin: 0.2rem 0 0.7rem 0; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.4rem 1rem; }
+.tm-briefing .tm-dateline { color: #5c6270; font-size: 0.8125rem; margin: 0.2rem 0 0.7rem 0; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.4rem 1rem; }
 .tm-briefing .tm-pdf-btn { font-size: 0.78rem; padding: 0.15rem 0.6rem; white-space: nowrap; }
 .tm-briefing .tm-briefing-kpis { grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr)) !important; margin-bottom: 1rem; }
-.tm-briefing .tm-keypoints { box-shadow: none; padding: 0.2rem 0 0.2rem 1.4rem; margin: 0; border-left: 0; font-size: 0.95rem; }
+.tm-briefing .tm-keypoints { box-shadow: none; padding: 0.2rem 0 0.2rem 1.4rem; margin: 0; border: 0; font-size: 0.9375rem; line-height: 1.55; }
 .tm-briefing .tm-keypoints li { margin-bottom: 0.35rem; }
 .tm-briefing .tm-copy-btn { font-size: 0.75rem; padding: 0.1rem 0.5rem; }
 .tm-briefing .tm-card { margin-bottom: 1rem; }

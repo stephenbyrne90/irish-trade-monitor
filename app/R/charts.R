@@ -12,17 +12,17 @@
 # ---------------------------------------------------------------------------
 
 TM_COL <- list(
-  exports = "#004d44", imports = "#9a7b2f", balance = "#4a4f57",
+  exports = "#004d44", imports = "#c9821a", balance = "#4a4f57",
   ink = "#0b0c0c", muted = "#5c6270", grid = "#e5e7eb", highlight = "#ae1122",
-  positive = "#004d44", negative = "#a3402b", band = "#dde3e0"
+  positive = "#004d44", negative = "#a3402b", band = "#dfe3e8"
 )
 
 .TM_EURO <- intToUtf8(0x20AC)
 # Names are quoted: an unquoted family name containing a digit is invalid
 # CSS, and the browser then silently falls back to plotly's default font.
 .TM_FONT <- "'Lato', 'Helvetica Neue', Arial, sans-serif"
-.TM_DEFAULT_PALETTE <- c("#004d44", "#ab9965", "#2c55a2", "#a3402b", "#5e4a8c",
-                         "#2e7d6f", "#8c5a2b", "#8ba6d6", "#6c7a99", "#c8cbd0")
+.TM_DEFAULT_PALETTE <- c("#004d44", "#c9821a", "#2c55a2", "#a3402b", "#7c62b8",
+                         "#2e7d6f", "#dcb945", "#8ba6d6", "#6c7a99", "#c8cbd0")
 .TM_SOURCE_NOTE <- "Source: Eurostat Comext (DS-059331), reporter Ireland. Nominal EUR."
 
 .tm_is_date <- function(x) inherits(x, c("Date", "POSIXct"))
@@ -123,7 +123,7 @@ tm_layout <- function(p, y_title = NULL, y_suffix = "", y_prefix = "", y_tickfor
       ),
       x = 0, y = 1.02, xanchor = "left", yanchor = "bottom",
       font = list(size = 11, color = TM_COL$muted),
-      bgcolor = "#f1f2f0", activecolor = TM_COL$band, borderwidth = 0
+      bgcolor = "#eef0f3", activecolor = "#cfdfdb", borderwidth = 0
     )
   }
   yaxis <- list(
@@ -150,7 +150,8 @@ tm_layout <- function(p, y_title = NULL, y_suffix = "", y_prefix = "", y_tickfor
       margin = list(l = 40, r = 12, t = if (range_buttons) 36 else 12,
                     b = if (legend == "bottom") 48 else 28, pad = 2),
       hovermode = hovermode,
-      hoverlabel = list(font = list(family = .TM_FONT, size = 12)),
+      hoverlabel = list(bgcolor = "white", bordercolor = "#9ea3aa",
+                        font = list(family = .TM_FONT, size = 12, color = TM_COL$ink)),
       showlegend = legend != "none",
       legend = leg,
       xaxis = xaxis,
@@ -672,28 +673,28 @@ tm_chart_card <- function(title, subtitle = NULL, ..., footer = .TM_SOURCE_NOTE,
 #' @return htmltools style tag.
 tm_page_css <- function() {
   htmltools::tags$style(htmltools::HTML("
-.tm-card, .tm-kpi { background: #fff; border-radius: 0.6rem; box-shadow: 0 1px 3px rgba(31,41,51,0.08) !important; }
-.tm-card .tm-card-header { background: transparent; border-bottom: 0; padding: 0.85rem 1rem 0.2rem 1rem; }
-.tm-card-title { font-weight: 700; font-size: 1.02rem; color: #0b0c0c; line-height: 1.25; }
-.tm-subtitle { color: #5c6270; font-size: 0.84rem; margin-top: 0.15rem; }
-.tm-card .tm-card-body { padding: 0.25rem 0.6rem 0.4rem 0.6rem; }
-.tm-card .tm-footer { background: transparent; border-top: 0; color: #5c6270; font-size: 0.74rem; padding: 0.2rem 1rem 0.65rem 1rem; }
-.tm-kpi .tm-kpi-body { padding: 0.8rem 1rem 0.7rem 1rem; }
-.tm-kpi-title { text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.72rem; font-weight: 600; color: #5c6270; }
-.tm-kpi-value { font-size: 2rem; font-weight: 700; line-height: 1.15; color: #0b0c0c; margin: 0.15rem 0 0.35rem 0; }
+.card.tm-card, .card.tm-kpi { background: #fff; border: 1px solid #e1e4e8 !important; border-radius: 0.25rem; box-shadow: none !important; }
+.tm-card .tm-card-header { background: transparent; border-bottom: 0; padding: 0.85rem 1.1rem 0.2rem 1.1rem; }
+.tm-card-title { font-weight: 700; font-size: 1rem; color: #0b0c0c; line-height: 1.3; }
+.tm-subtitle { color: #5c6270; font-size: 0.8125rem; line-height: 1.45; margin-top: 0.15rem; }
+.tm-card .tm-card-body { padding: 0.25rem 0.7rem 0.4rem 0.7rem; }
+.tm-card .tm-footer { background: transparent; border-top: 0; color: #5c6270; font-size: 0.75rem; padding: 0.2rem 1.1rem 0.7rem 1.1rem; }
+.tm-kpi .tm-kpi-body { padding: 0.8rem 1rem 0.75rem 1rem; }
+.tm-kpi-title { text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem; font-weight: 700; color: #5c6270; }
+.tm-kpi-value { font-size: 1.75rem; font-weight: 700; line-height: 1.15; color: #0b0c0c; margin: 0.2rem 0 0.4rem 0; font-variant-numeric: tabular-nums; }
 .tm-kpi .tm-kpi-body { overflow: hidden; }
 .tm-kpi-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 0.35rem 0.5rem; }
-.tm-kpi-lines { font-size: 0.84rem; color: #0b0c0c; }
-.tm-kpi-line { margin-top: 0.05rem; }
+.tm-kpi-lines { font-size: 0.8125rem; color: #0b0c0c; font-variant-numeric: tabular-nums; }
+.tm-kpi-line { margin-top: 0.1rem; }
 .tm-kpi-spark { flex: 0 1 auto; line-height: 0; margin-left: auto; max-width: 100%; }
 .tm-kpi-spark svg { max-width: 100%; height: auto; }
-.tm-kpi-note { margin-top: 0.4rem; font-size: 0.72rem; color: #5c6270; }
-.tm-delta { font-weight: 600; white-space: nowrap; }
+.tm-kpi-note { margin-top: 0.45rem; font-size: 0.75rem; line-height: 1.4; color: #5c6270; }
+.tm-delta { font-weight: 700; white-space: nowrap; }
 .tm-delta-up { color: #004d44; }
 .tm-delta-down { color: #a3402b; }
 .tm-delta-na { color: #5c6270; }
 .tm-delta-label { font-weight: 400; color: #5c6270; }
-.tm-keypoints { background: #fff; border-left: 4px solid #004d44; border-radius: 0.4rem; padding: 0.7rem 1rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(31,41,51,0.08); }
+.tm-keypoints { background: #fff; border: 1px solid #e1e4e8; border-left: 4px solid #004d44; border-radius: 0.25rem; padding: 0.7rem 1rem; margin-bottom: 1rem; }
 .tm-keypoints ul { margin: 0.2rem 0 0 0; padding-left: 1.1rem; }
 .tm-keypoints li { margin-bottom: 0.2rem; }
 "))

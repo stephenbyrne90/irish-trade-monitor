@@ -25,10 +25,10 @@ TM_GROUPS <- tibble::tribble(
   "Other chemicals",                "Other chem.", "#8fc1b5",  "Rest of SITC section 5",
   "Computers & electronics",        "Computers",   "#2c55a2",  "SITC 75, 76, 77 except 774",
   "Medical devices & instruments",  "Med. devices","#8ba6d6",  "SITC 87, 8996, 774",
-  "Aircraft",                       "Aircraft",    "#5e4a8c",  "SITC 792",
+  "Aircraft",                       "Aircraft",    "#7c62b8",  "SITC 792",
   "Other machinery & transport",    "Other mach.", "#6c7a99",  "Rest of SITC section 7",
-  "Food, drink & tobacco",          "Food",        "#ab9965",  "SITC sections 0 and 1",
-  "Fuels",                          "Fuels",       "#8c5a2b",  "SITC section 3",
+  "Food, drink & tobacco",          "Food",        "#c9821a",  "SITC sections 0 and 1",
+  "Fuels",                          "Fuels",       "#b5561f",  "SITC section 3",
   "Other goods",                    "Other",       "#c8cbd0",  "SITC sections 2, 4, 6, 9 and rest of 8"
 )
 TM_GROUP_LEVELS <- TM_GROUPS$group
@@ -49,7 +49,7 @@ TM_CHEM_GROUPS <- TM_GROUPS$group[1:3]
 TM_PARTNER_GROUP_LEVELS <- c("United States", "Great Britain & NI", "Euro area",
                              "Other EU", "Switzerland", "China", "Rest of world")
 TM_PARTNER_GROUP_COLOURS <- stats::setNames(
-  c("#2c55a2", "#ae1122", "#004d44", "#8fc1b5", "#ab9965", "#5e4a8c", "#c8cbd0"),
+  c("#2c55a2", "#ae1122", "#004d44", "#8fc1b5", "#c9821a", "#7c62b8", "#c8cbd0"),
   TM_PARTNER_GROUP_LEVELS
 )
 # Code -> group lookup. "Rest of world" has no codes: it is the residual.
@@ -732,7 +732,7 @@ tm_build_bundle <- function(trade_data) {
 # in TM_SITC1_LABELS. Same hues as the Explorer pages' section palette so a
 # section keeps one colour across the whole app.
 TM_SITC1_COLOURS <- stats::setNames(
-  c("#ab9965", "#6b5b2e", "#8c5a2b", "#a3402b", "#d9cca3",
+  c("#c9821a", "#7c62b8", "#6c7a99", "#b5561f", "#dcb945",
   "#004d44", "#8fc1b5", "#2c55a2", "#8ba6d6", "#c8cbd0"),
   unname(TM_SITC1_LABELS)
 )

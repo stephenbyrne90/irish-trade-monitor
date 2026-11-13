@@ -320,7 +320,7 @@ structure_treemap_data <- function(td, flow_code, prep = NULL, top_n = 8) {
   }
   body <- dplyr::bind_rows(rows)
   root <- tibble::tibble(id = "root", label = fl, parent = "", value = sum(body$value[body$kind == "group"]),
-                         colour = "#eef0ee", kind = "root", group = NA_character_)
+                         colour = "#eef0f3", kind = "root", group = NA_character_)
   dplyr::bind_rows(root, body)
 }
 
@@ -352,7 +352,7 @@ structure_chart_conc <- function(td, flow_code, prep = NULL) {
                     levels = c("Top 1 product", "Top 3 products", "Top 10 products")),
     share = c(d$top1, d$top3, d$top10)
   )
-  pal <- c("Top 1 product" = "#ab9965", "Top 3 products" = "#2e7d6f", "Top 10 products" = "#004d44")
+  pal <- c("Top 1 product" = "#c9821a", "Top 3 products" = "#2e7d6f", "Top 10 products" = "#004d44")
   tm_chart_lines(long, y = "share", colour_by = "series", palette = pal, y_suffix = "%",
                  y_title = paste0("Share of ", tolower(structure_flow_name(flow_code)), " (%)"))
 }
@@ -524,7 +524,7 @@ structure_uv_data <- function(td, flow_code, group, prep = NULL) {
 structure_chart_uv <- function(td, flow_code, group = "Pharmaceuticals", prep = NULL) {
   d <- structure_uv_data(td, flow_code, group, prep)
   if (nrow(d) == 0) return(tm_empty_plot("No volume data for this group"))
-  pal <- c("Value (EUR)" = "#004d44", "Volume (kg)" = "#7a7f87", "Unit value (EUR per kg)" = "#9a7b2f")
+  pal <- c("Value (EUR)" = "#004d44", "Volume (kg)" = "#7a7f87", "Unit value (EUR per kg)" = "#c9821a")
   p <- tm_chart_lines(d, y = "index", colour_by = "series", palette = pal,
                       y_title = "Index, 2019 = 100")
   ref <- list(type = "line", xref = "paper", x0 = 0, x1 = 1, yref = "y", y0 = 100, y1 = 100,
